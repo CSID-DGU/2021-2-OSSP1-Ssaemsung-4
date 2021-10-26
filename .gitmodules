@@ -1,0 +1,3 @@
+[submodule "DeepLearning/Speaker-Diarization"]
+	path = DeepLearning/Speaker-Diarization
+	url = https://github.com/chohj1111/Speaker-Diarization.git
