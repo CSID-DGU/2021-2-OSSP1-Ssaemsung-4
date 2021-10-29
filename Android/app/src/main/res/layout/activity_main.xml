@@ -7,19 +7,29 @@
     android:orientation="vertical"
     tools:context=".MainActivity">
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="최근 녹음"
+        android:textSize="35sp"
+        android:layout_margin="10dp">
+    </TextView>
+
 
     <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/audioRecyclerView"
         android:layout_width="match_parent"
-        android:layout_height="554dp"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
-
+        android:layout_height="481dp"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
     <ImageButton
-        android:id="@+id/imageButton"
+        android:id="@+id/record_button"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="57dp"
         android:layout_gravity="center"
         android:layout_weight="1"
+        android:adjustViewBounds="true"
+        android:minHeight="48dp"
         app:srcCompat="@drawable/ic_record"
         tools:ignore="SpeakableTextPresentCheck" />
 </LinearLayout>
