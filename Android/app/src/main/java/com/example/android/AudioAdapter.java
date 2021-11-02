@@ -9,6 +9,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
+import android.widget.SeekBar;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -34,7 +36,7 @@ public class AudioAdapter extends RecyclerView.Adapter {
     private OnIconClickListener listener = null;
 
     public interface OnIconClickListener {
-        void onItemClick(View view, int position);
+        void onItemClick(View view, int position, SeekBar seekBar);
     }
 
 
@@ -82,8 +84,8 @@ public class AudioAdapter extends RecyclerView.Adapter {
     public class RecordViewHolder extends RecyclerView.ViewHolder {
         Button audioTitle;
         ImageButton expand_button;
-        ImageButton pause_button;
         ImageButton play_button;
+        SeekBar seekBar;
 
         public RecordViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -91,14 +93,17 @@ public class AudioAdapter extends RecyclerView.Adapter {
             expand_button = itemView.findViewById(R.id.expand_button);
             play_button = itemView.findViewById(R.id.play_button);
 
+            seekBar = itemView.findViewById(R.id.seekBar);
+
             play_button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     //play 음악 실행
+                    //pos -> list순서
                     int pos = getAdapterPosition();
                     if (pos != RecyclerView.NO_POSITION) {
                         if(listener != null) {
-                            listener.onItemClick(v, pos);
+                            listener.onItemClick(v, pos, seekBar);
                         }
                     }
                 }
@@ -111,7 +116,7 @@ public class AudioAdapter extends RecyclerView.Adapter {
                     int pos = getAdapterPosition();
                     if (pos != RecyclerView.NO_POSITION) {
                         if(listener != null) {
-                            listener.onItemClick(v, pos);
+                            listener.onItemClick(v, pos, seekBar);
                         }
                     }
                 }

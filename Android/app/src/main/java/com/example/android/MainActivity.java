@@ -22,6 +22,8 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.SeekBar;
 
 import java.io.File;
 import java.io.IOException;
@@ -51,6 +53,8 @@ public class MainActivity extends AppCompatActivity {
     private MediaPlayer mediaPlayer = null;
     private Boolean isPlaying = false;
     ImageButton playIcon;
+    SeekBar preSeekBar = null;
+    SeekBar curSeekBar = null;
 
     //리사이클러뷰
     private AudioAdapter audioAdapter;
@@ -95,22 +99,6 @@ public class MainActivity extends AppCompatActivity {
                         recordDialog.destroyDialog();
                     }
                 });
-
-//                //레코드 시작
-//                if(isRecording) {
-//                    //녹음중
-//                    Log.d(TAG,"stop record");
-//                    isRecording = false;
-//                    stopRecording();
-//                } else {
-//                    //녹음 아닐시
-//                    //audio 권한 체크 / 처음으로 녹음 실행한건지 여부확인
-//                    if(checkAudioPermission()) {
-//                        Log.d(TAG,"start record");
-//                        isRecording = true;
-//                        startRecording();
-//                    }
-//                }
             }
         });
 
@@ -128,11 +116,14 @@ public class MainActivity extends AppCompatActivity {
         //하나의 item 클릭시 -> 하나의 녹음파일 페이지로 변환 필요 수정 필요
         audioAdapter.setOnItemClickListener(new AudioAdapter.OnIconClickListener() {
             @Override
-            public void onItemClick(View view, int position) {
+            public void onItemClick(View view, int position, SeekBar seekbar) {
 
                 String uriName = String.valueOf(audioList.get(position));
 
                 File file = new File(uriName);
+
+                preSeekBar = curSeekBar;
+                curSeekBar = seekbar;
 
                 if (isPlaying) {
                     if (playIcon == view) {
@@ -148,12 +139,41 @@ public class MainActivity extends AppCompatActivity {
                         playAudio(file);
                     }
                 } else {
+                    //전에 플레이어 정지시켜놓고 다른 플레이어 시작시
+                    if(preSeekBar != null && preSeekBar != curSeekBar){
+                        Log.d(TAG,"preseekbar");
+                        preSeekBar.setProgress(0);
+                        stopAudio();
+                    }
                     playIcon = (ImageButton) view;
                     playAudio(file);
                 }
             }
         });
 
+    }
+    //init 끝
+
+    //seekbar 변경 thread
+    public void Thread(){
+        Runnable task = new Runnable() {
+            @Override
+            public void run() {
+                while(isPlaying) {
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    if(mediaPlayer == null) {
+                        break;
+                    }
+                    curSeekBar.setProgress(mediaPlayer.getCurrentPosition());
+                }
+            }
+        };
+        Thread thread = new Thread(task);
+        thread.start();
     }
 
     private void playAudio(File file) {
@@ -180,23 +200,37 @@ public class MainActivity extends AppCompatActivity {
             }
 
         }
+
         isPlaying = true;
+        curSeekBar.setMax(mediaPlayer.getDuration());
+
+
         mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mp) {
                 stopAudio();
             }
         });
+
+        Thread();
     }
 
     private void stopAudio() {
+        //전에 실행시키던 seekbar 초기화
+        if (preSeekBar != null) {
+            Log.d(TAG, "preseekbar");
+            preSeekBar.setProgress(0);
+        }
         playIcon.setImageResource(R.drawable.ic_play);
         isPlaying = false;
         if(mediaPlayer != null){
             Log.d(TAG,"play stop audio");
             mediaPlayer.stop();
+            mediaPlayer.reset();
             mediaPlayer.release();
         }
+        curSeekBar.setProgress(0);
+
         mediaPlayer = null;
         Log.d(TAG,"stop audio");
 
@@ -207,6 +241,7 @@ public class MainActivity extends AppCompatActivity {
         isPlaying = false;
         Log.d(TAG,"pause audio");
         mediaPlayer.pause();
+        curSeekBar.setProgress(mediaPlayer.getCurrentPosition());
     }
 
     private boolean checkAudioPermission() {
