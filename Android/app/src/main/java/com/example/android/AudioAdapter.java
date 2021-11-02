@@ -3,10 +3,12 @@ package com.example.android;
 import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -23,11 +25,18 @@ public class AudioAdapter extends RecyclerView.Adapter {
     ArrayList<Uri> dataModels;
     Context context;
 
+    //item 클릭 상태를 저장
+    private SparseBooleanArray selectedItems = new SparseBooleanArray();
+    //직전에 클릭됐던 item의 position
+    private int prePosition = -1;
+
+
     private OnIconClickListener listener = null;
 
     public interface OnIconClickListener {
         void onItemClick(View view, int position);
     }
+
 
     public void setOnItemClickListener(OnIconClickListener listener){
         this.listener = listener;
@@ -69,13 +78,33 @@ public class AudioAdapter extends RecyclerView.Adapter {
         return dataModels.size();
     }
 
+    //subview 세팅하는 부분
     public class RecordViewHolder extends RecyclerView.ViewHolder {
         Button audioTitle;
+        ImageButton expand_button;
+        ImageButton pause_button;
+        ImageButton play_button;
 
         public RecordViewHolder(@NonNull View itemView) {
             super(itemView);
             audioTitle = itemView.findViewById(R.id.audioTitle);
+            expand_button = itemView.findViewById(R.id.expand_button);
+            play_button = itemView.findViewById(R.id.play_button);
 
+            play_button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    //play 음악 실행
+                    int pos = getAdapterPosition();
+                    if (pos != RecyclerView.NO_POSITION) {
+                        if(listener != null) {
+                            listener.onItemClick(v, pos);
+                        }
+                    }
+                }
+            });
+
+            //여기 수정해야함 -> 음악실행이 아닌 다음 뷰로 넘어가야함
             audioTitle.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

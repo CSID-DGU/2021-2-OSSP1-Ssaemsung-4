@@ -32,7 +32,7 @@ import java.util.Date;
 public class MainActivity extends AppCompatActivity {
 
     ImageButton recordButton;
-    ImageButton recordStopButton;
+    //ImageButton recordStopButton;
     RecordDialog recordDialog;
 
     String TAG = "aa";
@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
     //오디오 파일 재생 관련 변수
     private MediaPlayer mediaPlayer = null;
     private Boolean isPlaying = false;
-    Button playIcon;
+    ImageButton playIcon;
 
     //리사이클러뷰
     private AudioAdapter audioAdapter;
@@ -76,6 +76,10 @@ public class MainActivity extends AppCompatActivity {
 
                 //버튼 누를시 녹음 시작
                 if(checkAudioPermission()) {
+                    if(isPlaying){
+                        stopAudio();
+                    }
+
                     Log.d(TAG,"start record");
                     isRecording = true;
                     startRecording();
@@ -89,7 +93,6 @@ public class MainActivity extends AppCompatActivity {
                         isRecording = false;
                         stopRecording();
                         recordDialog.destroyDialog();
-
                     }
                 });
 
@@ -120,6 +123,9 @@ public class MainActivity extends AppCompatActivity {
         mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         audioRecyclerView.setLayoutManager(mLayoutManager);
 
+
+
+        //하나의 item 클릭시 -> 하나의 녹음파일 페이지로 변환 필요 수정 필요
         audioAdapter.setOnItemClickListener(new AudioAdapter.OnIconClickListener() {
             @Override
             public void onItemClick(View view, int position) {
@@ -129,39 +135,52 @@ public class MainActivity extends AppCompatActivity {
                 File file = new File(uriName);
 
                 if (isPlaying) {
-                    if (playIcon == (Button) view) {
+                    if (playIcon == view) {
                         //같은 파일을 클릭했을 경우
-                        stopAudio();
+                        pauseAudio();
                     } else {
                         //다른 음성 파일을 클릭했을 경우
                         //기존의 재생중인 파일 중지
                         stopAudio();
 
                         //새로 파일 재생하기
-                        playIcon = (Button) view;
+                        playIcon = (ImageButton)view;
                         playAudio(file);
                     }
                 } else {
-                    playIcon = (Button) view;
+                    playIcon = (ImageButton) view;
                     playAudio(file);
                 }
             }
         });
+
     }
 
     private void playAudio(File file) {
-        MediaPlayer mediaPlayer= new MediaPlayer();
-
-        try {
-            mediaPlayer.setDataSource(file.getAbsolutePath());
-            mediaPlayer.prepare();
+        playIcon.setImageResource(R.drawable.ic_pause);
+        //일시정지 후 시작하는 경우
+        if ( mediaPlayer != null) {
+            Log.d(TAG, "nullxxxx");
+            int media_position = mediaPlayer.getCurrentPosition();
+            mediaPlayer.seekTo(media_position);
             mediaPlayer.start();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
+        // 아예 처음 시작하는 부분
+        else {
+            Log.d(TAG, "null");
+            mediaPlayer= new MediaPlayer();
+            Log.d(TAG,"play audio");
 
+            try {
+                mediaPlayer.setDataSource(file.getAbsolutePath());
+                mediaPlayer.prepare();
+                mediaPlayer.start();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }
         isPlaying = true;
-
         mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mp) {
@@ -171,13 +190,23 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void stopAudio() {
+        playIcon.setImageResource(R.drawable.ic_play);
         isPlaying = false;
         if(mediaPlayer != null){
+            Log.d(TAG,"play stop audio");
             mediaPlayer.stop();
             mediaPlayer.release();
         }
         mediaPlayer = null;
         Log.d(TAG,"stop audio");
+
+    }
+
+    private void pauseAudio() {
+        playIcon.setImageResource(R.drawable.ic_play);
+        isPlaying = false;
+        Log.d(TAG,"pause audio");
+        mediaPlayer.pause();
     }
 
     private boolean checkAudioPermission() {

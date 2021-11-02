@@ -1,20 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_gravity="center_vertical"
-    android:background="#FFFFFF">
+    android:weightSum="15"
+    android:orientation="vertical">
 
-    <Button
-        android:id="@+id/audioTitle"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#FFFFFF"
-        android:textColor="#000000"
-        tools:ignore="SpeakableTextPresentCheck">
+        android:orientation="horizontal">
+        <ImageButton
+            android:id="@+id/expand_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:adjustViewBounds="true"
+            app:srcCompat="@drawable/ic_expand_more"
+            tools:ignore="SpeakableTextPresentCheck" />
 
-    </Button>
+        <Button
+            android:id="@+id/audioTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="14"
+            android:background="#FFFFFF"
+            android:textColor="#000000"
+            tools:ignore="SpeakableTextPresentCheck"/>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="20">
+
+
+        <ImageButton
+            android:id="@+id/play_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:adjustViewBounds="true"
+            app:srcCompat="@drawable/ic_play"
+            tools:ignore="SpeakableTextPresentCheck" />
+
+        <SeekBar
+            android:id="@+id/seekBar"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="19" />
+    </LinearLayout>
 
 
 </LinearLayout>
