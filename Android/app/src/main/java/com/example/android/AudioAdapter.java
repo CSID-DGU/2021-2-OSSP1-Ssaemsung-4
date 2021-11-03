@@ -1,5 +1,6 @@
 package com.example.android;
 
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
@@ -9,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
 
@@ -55,7 +57,6 @@ public class AudioAdapter extends RecyclerView.Adapter {
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         //자신이 만든 itemview를 inflate한 다음 뷰홀더 생성
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_audio,parent, false);
-        Log.d(TAG,"viewholder");
         RecordViewHolder viewHolder = new RecordViewHolder(view);
 
         //생성된 뷰홀더를 리턴하여 onBindViewHolder에 전달
@@ -63,6 +64,7 @@ public class AudioAdapter extends RecyclerView.Adapter {
     }
 
     @Override
+    //아이템을 하나하나 보여주는 함수
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         RecordViewHolder recordViewHolder = (RecordViewHolder) holder;
 
@@ -71,12 +73,16 @@ public class AudioAdapter extends RecyclerView.Adapter {
         Log.d(TAG,file.getName());
         recordViewHolder.audioTitle.setText(file.getName());
 
+        recordViewHolder.expand_button.setImageResource(selectedItems.get(position)? R.drawable.ic_expand_less : R.drawable.ic_expand_more);
+        recordViewHolder.playerView.setVisibility(selectedItems.get(position) ? View.VISIBLE : View.GONE);
+
+        //recordViewHolder.changeVisibility(selectedItems.get(position), expand_button);
+
     }
 
     @Override
     public int getItemCount() {
         //데이터 리스트의 크기를 전달해주어야함
-        Log.d(TAG, String.valueOf(dataModels.size()));
         return dataModels.size();
     }
 
@@ -84,13 +90,19 @@ public class AudioAdapter extends RecyclerView.Adapter {
     public class RecordViewHolder extends RecyclerView.ViewHolder {
         Button audioTitle;
         ImageButton expand_button;
+
         ImageButton play_button;
         SeekBar seekBar;
+        LinearLayout playerView;
 
         public RecordViewHolder(@NonNull View itemView) {
             super(itemView);
             audioTitle = itemView.findViewById(R.id.audioTitle);
+
             expand_button = itemView.findViewById(R.id.expand_button);
+
+            playerView = itemView.findViewById(R.id.playerView);
+
             play_button = itemView.findViewById(R.id.play_button);
 
             seekBar = itemView.findViewById(R.id.seekBar);
@@ -121,7 +133,40 @@ public class AudioAdapter extends RecyclerView.Adapter {
                     }
                 }
             });
+            expand_button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int pos = getAdapterPosition();
+                    if(selectedItems.get(pos)) {
+                        selectedItems.delete(pos);
+                    } else {
+                        selectedItems.delete(prePosition);
+                        selectedItems.put(pos, true);
+                    }
+                    if (prePosition != -1) notifyItemChanged(prePosition);
+                    notifyItemChanged(pos);
+
+                    prePosition = pos;
+
+
+                }
+            });
+
         }
+
+
+//        private void changeVisibility(final boolean isExpanded, ImageButton expand_button) {
+//            //playerView 크기
+//            Log.d(TAG,"")
+//            int dpValue = playerView.getHeight();
+//            float d = context.getResources().getDisplayMetrics().density;
+//            int height = (int) (dpValue * d);
+//
+//            playerView.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
+//
+//            expand_button.setImageResource(isExpanded? R.drawable.ic_expand_less : R.drawable.ic_expand_more);
+//
+//        }
 
     }
 
