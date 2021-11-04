@@ -104,7 +104,15 @@ public class MainActivity extends AppCompatActivity {
 
         //리사이클러뷰
         RecyclerView audioRecyclerView = findViewById(R.id.audioRecyclerView);
+        File recordDirectory = new File(getExternalFilesDir("/").getAbsolutePath());
+        File[] recordFiles = recordDirectory.listFiles();
+
         audioList = new ArrayList<>();
+
+        for(int i =0; i<recordFiles.length; i++) {
+            audioList.add(Uri.parse(String.valueOf(recordFiles[i])));
+        }
+
         audioAdapter = new AudioAdapter(this, audioList);
         audioRecyclerView.setAdapter(audioAdapter);
         LinearLayoutManager mLayoutManager = new LinearLayoutManager(this);
