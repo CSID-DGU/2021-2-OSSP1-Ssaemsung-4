@@ -5,6 +5,6 @@ from .models import Addresses
 class AddressesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Addresses
-        fields = ['name', 'phone_number', 'address']
+        fields = ['speaker', 'start_time', 'end_time']
 
 
