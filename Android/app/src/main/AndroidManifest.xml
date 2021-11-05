@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.android">
-
     <!-- 오디오 권한 -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
@@ -12,6 +11,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Android">
+        <activity
+            android:name=".SubActivity"
+            android:exported="false" />
         <activity
             android:name=".MainActivity"
             android:exported="true">

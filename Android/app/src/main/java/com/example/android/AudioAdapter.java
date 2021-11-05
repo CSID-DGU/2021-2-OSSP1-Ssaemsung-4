@@ -1,7 +1,11 @@
 package com.example.android;
 
+import static androidx.core.app.ActivityCompat.startActivityForResult;
+import static androidx.core.content.ContextCompat.startActivity;
+
 import android.animation.ValueAnimator;
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
 import android.util.SparseBooleanArray;
@@ -35,15 +39,25 @@ public class AudioAdapter extends RecyclerView.Adapter {
     private int prePosition = -1;
 
 
-    private OnIconClickListener listener = null;
+    private OnIconClickListener audioPlayListener = null;
+
+    private OnNameClickListner nameClickListner = null;
+
 
     public interface OnIconClickListener {
         void onItemClick(View view, int position, SeekBar seekBar);
     }
 
+    public interface OnNameClickListner {
+        void onNameClick(View view, int position);
+    }
 
-    public void setOnItemClickListener(OnIconClickListener listener){
-        this.listener = listener;
+    public void setOnItemClickListener(OnIconClickListener audioPlayListener){
+        this.audioPlayListener = audioPlayListener;
+    }
+
+    public void setOnNameClickListener(OnNameClickListner nameClickListner){
+        this.nameClickListner = nameClickListner;
     }
 
     //생성자를 통하여 데이터 리스트 context를 받음
@@ -114,8 +128,8 @@ public class AudioAdapter extends RecyclerView.Adapter {
                     //pos -> list순서
                     int pos = getAdapterPosition();
                     if (pos != RecyclerView.NO_POSITION) {
-                        if(listener != null) {
-                            listener.onItemClick(v, pos, seekBar);
+                        if(audioPlayListener != null) {
+                            audioPlayListener.onItemClick(v, pos, seekBar);
                         }
                     }
                 }
@@ -127,10 +141,11 @@ public class AudioAdapter extends RecyclerView.Adapter {
                 public void onClick(View v) {
                     int pos = getAdapterPosition();
                     if (pos != RecyclerView.NO_POSITION) {
-                        if(listener != null) {
-                            listener.onItemClick(v, pos, seekBar);
+                        if(nameClickListner != null) {
+                            nameClickListner.onNameClick(v, pos);
                         }
                     }
+                    Intent intent = new Intent(context.getApplicationContext(), SubActivity.class);
                 }
             });
             expand_button.setOnClickListener(new View.OnClickListener() {

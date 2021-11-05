@@ -58,7 +58,7 @@
             android:layout_height="60dp"
             app:srcCompat="@drawable/ic_bookmark"
             tools:ignore="MissingConstraints,SpeakableTextPresentCheck"
-            tools:layout_editor_absoluteX="351dp"
+            tools:layout_editor_absoluteX="349dp"
             tools:layout_editor_absoluteY="0dp" />
 
 

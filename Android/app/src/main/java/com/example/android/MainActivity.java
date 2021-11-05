@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
 
     String TAG = "aa";
 
-    //오디오 권한
+    //오디오 권한onItemClick
     private String recordPermission = Manifest.permission.RECORD_AUDIO;
     private static int PERMISSION_CODE = 21;
 
@@ -126,6 +126,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(View view, int position, SeekBar seekbar) {
 
+                //uriname -> /storage/emulated/0/Android/data/com.example.android/files/RecordExample_20211105_060234
                 String uriName = String.valueOf(audioList.get(position));
 
                 File file = new File(uriName);
@@ -156,6 +157,18 @@ public class MainActivity extends AppCompatActivity {
                     playIcon = (ImageButton) view;
                     playAudio(file);
                 }
+            }
+        });
+
+        //각 녹음별 화면으로 이동
+        audioAdapter.setOnNameClickListener(new AudioAdapter.OnNameClickListner() {
+            @Override
+            public void onNameClick(View view, int position) {
+                String uriName = String.valueOf(audioList.get(position));
+
+                Intent intent = new Intent(MainActivity.this, SubActivity.class);
+                intent.putExtra("uriName", uriName);
+                startActivity(intent);
             }
         });
 
