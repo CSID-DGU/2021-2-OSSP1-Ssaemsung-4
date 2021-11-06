@@ -6,7 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="88538b4a-de84-41cd-ab1b-53214aada992" name="Changes" comment="">
       <change afterPath="$PROJECT_DIR$/speakerDiarization/forms.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/speakerDiarization/speaker_diarization/pretrained/README.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/speakerDiarization/diarization/pretrained/README.md" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/speakerDiarization/urls.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/restfulapiserver.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/restfulapiserver.iml" afterDir="false" />
@@ -14,7 +14,7 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/restfulapiserver/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/restfulapiserver/settings.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/restfulapiserver/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/restfulapiserver/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/speakerDiarization/speaker_diarization/uisrnn/uisrnn.py" beforeDir="false" afterPath="$PROJECT_DIR$/speakerDiarization/speaker_diarization/uisrnn/uisrnn.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/speakerDiarization/diarization/uisrnn/uisrnn.py" beforeDir="false" afterPath="$PROJECT_DIR$/speakerDiarization/diarization/uisrnn/uisrnn.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

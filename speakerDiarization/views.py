@@ -23,12 +23,12 @@ import sys
 import os
 
 
-from speakerDiarization.speaker_diarization.ghostvlad import toolkits
-from speakerDiarization.speaker_diarization.ghostvlad import model as spkModel
-from speakerDiarization.speaker_diarization import uisrnn
+from speakerDiarization.diarization.ghostvlad import toolkits
+from speakerDiarization.diarization.ghostvlad import model as spkModel
+from speakerDiarization.diarization import uisrnn
 from speakerDiarization.management.commands.custom import Command
 import os
-from speakerDiarization.speaker_diarization.visualization.viewer import PlotDiar
+from speakerDiarization.diarization.visualization.viewer import PlotDiar
 import argparse
 
 
@@ -162,7 +162,7 @@ def inference(wav_path, embedding_per_second=1.0, overlap_rate=0.5):
     network_eval = spkModel.vggvox_resnet2d_icassp(input_dim=params['dim'],
                                                    num_class=params['n_classes'],
                                                    mode='eval')
-    network_eval.load_weights(r'speakerDiarization/speaker_diarization/ghostvlad/pretrained/weights.h5', by_name=True)
+    network_eval.load_weights(r'speakerDiarization/diarization/ghostvlad/pretrained/weights.h5', by_name=True)
 
     model_args, _, inference_args = uisrnn.parse_arguments()
     model_args.observation_dim = 512
