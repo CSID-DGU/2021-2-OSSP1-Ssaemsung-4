@@ -1,0 +1,6 @@
+django~=2.2.5
+djangorestframework~=3.12.4
+numpy~=1.19.2
+scipy~=1.5.4
+librosa~=0.8.1
+setuptools~=58.0.4

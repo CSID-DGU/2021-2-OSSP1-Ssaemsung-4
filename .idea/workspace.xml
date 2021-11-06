@@ -5,10 +5,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="88538b4a-de84-41cd-ab1b-53214aada992" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/speakerDiarization/forms.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/speakerDiarization/speaker_diarization/pretrained/README.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/speakerDiarization/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/restfulapiserver.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/restfulapiserver.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/restfulapiserver/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/restfulapiserver/settings.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/secret.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/restfulapiserver/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/restfulapiserver/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/speakerDiarization/speaker_diarization/uisrnn/uisrnn.py" beforeDir="false" afterPath="$PROJECT_DIR$/speakerDiarization/speaker_diarization/uisrnn/uisrnn.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -27,8 +33,23 @@
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="ROOT_SYNC" value="DONT_SYNC" />
+  </component>
+  <component name="GitSEFilterConfiguration">
+    <file-type-list>
+      <filtered-out-file-type name="LOCAL_BRANCH" />
+      <filtered-out-file-type name="REMOTE_BRANCH" />
+      <filtered-out-file-type name="TAG" />
+      <filtered-out-file-type name="COMMIT_BY_MESSAGE" />
+    </file-type-list>
+  </component>
+  <component name="InvalidFacetManager">
+    <ignored-facets>
+      <facet id="restfulapiserver/invalid/Django" />
+    </ignored-facets>
   </component>
   <component name="ProjectId" id="20IqkpQbKUZ6VCQijJPfisZbIjN" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -38,12 +59,22 @@
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/speakerDiarization" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.tslint" value="true" />
     <property name="node.js.selected.package.eslint" value="(autodetect)" />
     <property name="node.js.selected.package.tslint" value="(autodetect)" />
+    <property name="run.code.analysis.last.selected.profile" value="aDefault" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\ekfwn\OneDrive - dongguk.edu\학교 자료\3-2\공소\2021-2-OSSP1-Ssaemsung-4\speakerDiarization" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\ekfwn\OneDrive - dongguk.edu\학교 자료\3-2\공소\2021-2-OSSP1-Ssaemsung-4\speakerDiarization" />
+      <recent name="C:\Users\ekfwn\Desktop\Projects\2021-2-OSSP1-Ssaemsung-4\templates\speakerDiarization" />
+    </key>
   </component>
   <component name="RunManager" selected="Python.manage">
     <configuration name="manage" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
@@ -60,7 +91,7 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/manage.py" />
-      <option name="PARAMETERS" value="runserver 127.0.0.1:8000" />
+      <option name="PARAMETERS" value="runserver 127.0.0.1:8080" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
@@ -136,7 +167,6 @@
       <method v="2" />
     </configuration>
     <list>
-      <item itemvalue="Django Server.restfulapiserver" />
       <item itemvalue="Python.manage" />
       <item itemvalue="Python.models" />
       <item itemvalue="Python.serializers" />
@@ -169,9 +199,21 @@
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
-  <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/restfulapiserver$models.coverage" NAME="models Coverage Results" MODIFIED="1635752556584" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/addresses" />
-    <SUITE FILE_PATH="coverage/restfulapiserver$manage.coverage" NAME="manage Coverage Results" MODIFIED="1636010057332" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/restfulapiserver$serializers.coverage" NAME="serializers Coverage Results" MODIFIED="1635751937317" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/addresses" />
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <ignored-roots>
+      <path value="$PROJECT_DIR$/speakerDiarization/Speaker-Diarization" />
+    </ignored-roots>
   </component>
 </project>
