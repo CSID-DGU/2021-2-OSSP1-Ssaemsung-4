@@ -1,13 +1,19 @@
-from django.core.management.base import BaseCommand, CommandError
-import argparse
+from django.core.management import call_command
+from django.core.management.base import BaseCommand
+from django.core.management.commands.runserver import BaseRunserverCommand
 
-class Command(BaseCommand):
-    help = '타이틀를 입력하여 질문을 만듭니다.'
 
+class Command(BaseRunserverCommand):
+    ''' Runs the built-in Django runserver with initial schema and fixtures
+    Note: cannot use auto-reloading because that casues resetdb to be called
+    twice.
+    '''
+    # remove this option from the --help for this command
+    help = 'Starts a lightweight web server testing.'
 
     def add_arguments(self, parser):
         # set up training configuration.
-        parser.add_argument('--gpu', default='', type=str)
+        parser.add_argument('--gpu', default='0', type=str)
         parser.add_argument('--resume', default=r'ghostvlad/pretrained/weights.h5', type=str)
         parser.add_argument('--data_path', default='4persons', type=str)
         # set up network configuration.
@@ -20,9 +26,9 @@ class Command(BaseCommand):
         parser.add_argument('--loss', default='softmax', choices=['softmax', 'amsoftmax'], type=str)
         parser.add_argument('--test_type', default='normal', choices=['normal', 'hard', 'extend'], type=str)
 
-        args = parser.parse_args()
+ 
+        
 
 
-    def handle(self, *args, **options):
-        print(" ")
-        return args
+    def handle(self, addrport='', *args, **options):
+        print("")
