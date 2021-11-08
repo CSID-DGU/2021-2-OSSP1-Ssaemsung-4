@@ -24,9 +24,9 @@ import os
 
 
 from speakerDiarization.diarization.ghostvlad import toolkits
-from speakerDiarization.diarization.ghostvlad import model as spkModel
+#from speakerDiarization.diarization.ghostvlad import model as spkModel
+from speakerDiarization.apps import SpeakerdiarizationConfig as spkModel
 from speakerDiarization.diarization import uisrnn
-from speakerDiarization.management.commands.custom import Command
 import os
 from speakerDiarization.diarization.visualization.viewer import PlotDiar
 import argparse
@@ -49,7 +49,7 @@ import argparse
 
 # args = parser.parse_args()
 
-SAVED_MODEL_NAME = 'pretrained/saved_model.uisrnn_benchmark'
+SAVED_MODEL_NAME = 'speakerDiarization/pretrained/saved_model.uisrnn_benchmark'
 
 
 def append2dict(speakerSlice, spk_period):
@@ -159,9 +159,8 @@ def inference(wav_path, embedding_per_second=1.0, overlap_rate=0.5):
               'normalize': True,
               }
 
-    network_eval = spkModel.vggvox_resnet2d_icassp(input_dim=params['dim'],
-                                                   num_class=params['n_classes'],
-                                                   mode='eval')
+    network_eval = spkModel.network_eval
+
     network_eval.load_weights(r'speakerDiarization/diarization/ghostvlad/pretrained/weights.h5', by_name=True)
 
     model_args, _, inference_args = uisrnn.parse_arguments()
@@ -211,11 +210,14 @@ def inference(wav_path, embedding_per_second=1.0, overlap_rate=0.5):
             e = fmtTime(e)
             print(s+' ==> '+e)
 
+    # matplot
+    '''
     p = PlotDiar(map=speakerSlice, wav=wav_path, gui=True, size=(25, 6))
     p.draw()
     p.plot.show()
+    ''' 
 
-''' 
-Main
-'''
-inference(wav_path=r'/wavs/rmdmy.wav', embedding_per_second=1.2, overlap_rate=0.4)
+ 
+# Get inferenced results 
+
+inference(wav_path=r'speakerDiarization/wavs/rmdmy.wav', embedding_per_second=1.2, overlap_rate=0.4)
