@@ -5,19 +5,34 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import android.content.Context;
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.Log;
+import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.google.android.material.internal.TextWatcherAdapter;
 
 import org.w3c.dom.Text;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
 import java.text.SimpleDateFormat;
@@ -25,6 +40,14 @@ import java.util.Date;
 
 public class SubActivity extends AppCompatActivity {
     Button record_button, memo_button, summary_button;
+
+    String uriName;
+
+    InputMethodManager inputMethodManager;
+
+    String TAG = "aa";
+
+    LinearLayout subView;
 
     EditText record_name;
 
@@ -39,6 +62,10 @@ public class SubActivity extends AppCompatActivity {
     MemoFragment memoFragment;
     SummaryFragment summaryFragment;
 
+    MediaPlayer mediaPlayer = null;
+
+    File newNamedFile = null;
+
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,12 +73,10 @@ public class SubActivity extends AppCompatActivity {
         setContentView(R.layout.activity_sub);
 
         Intent subIntent = getIntent();
-        String uriName = subIntent.getStringExtra("uriName");
+        uriName = subIntent.getStringExtra("uriName");
 
-        record_name = (EditText) findViewById(R.id.record_name);
+        subView = (LinearLayout) findViewById(R.id.subView);
 
-        //이름 저장
-        record_name.setText(uriName.split("/")[uriName.split("/").length - 1 ]);
 
         record_date = (TextView) findViewById(R.id.record_date);
 
@@ -72,7 +97,72 @@ public class SubActivity extends AppCompatActivity {
         }
         record_date.setText(dateFormat);
 
+        record_name = (EditText) findViewById(R.id.record_name);
+
+        //이름 저장
+        String fileName = uriName.split("/")[uriName.split("/").length - 1 ];
+
+        record_name.setText(fileName);
+
+        //record_name 변경후 화면 터치시 키보드 내려가고 파일 이름 변경 됨
+        subView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                Editable newRecordName = record_name.getText();
+                Path oldPath = Paths.get(uriName);
+                uriName = uriName.replaceAll(fileName, String.valueOf(newRecordName));
+                Path newPath = Paths.get(uriName);
+                Log.d(TAG, String.valueOf(uriName));
+                try {
+                    Files.move(oldPath,newPath);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                inputMethodManager.hideSoftInputFromWindow(record_name.getWindowToken(), 0);
+                record_name.clearFocus();
+
+                return false;
+            }
+        });
+
+
+        record_name.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                boolean handled = false;
+
+                if(actionId == EditorInfo.IME_ACTION_DONE) {
+                    inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    inputMethodManager.hideSoftInputFromWindow(record_name.getWindowToken(), 0);
+                    record_name.clearFocus();
+                    handled = true;
+                }
+                return handled;
+            }
+        });
+
+
+        Log.d(TAG,"uriname"+uriName);
+
+        mediaPlayer = new MediaPlayer();
+
+        try {
+            Log.d(TAG, "file"+file.getName());
+            if (newNamedFile != null){
+                mediaPlayer.setDataSource(newNamedFile.getAbsolutePath());
+            }
+            else {
+                mediaPlayer.setDataSource(file.getAbsolutePath());
+            }
+            mediaPlayer.prepare();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         record_time = (TextView) findViewById(R.id.record_time);
+
+        record_time.setText(String.valueOf((double)mediaPlayer.getDuration()/1000) + "s");
 
         record_button = (Button) findViewById(R.id.record_button);
         memo_button = (Button) findViewById(R.id.memo_button);
@@ -123,4 +213,13 @@ public class SubActivity extends AppCompatActivity {
                 break;
         }
     }
+
+
+//    @Override
+//    public void onBackPressed() {
+//        super.onBackPressed();
+//        Log.d(TAG,"here");
+//        MainActivity.onCreate()
+//    }
 }
+

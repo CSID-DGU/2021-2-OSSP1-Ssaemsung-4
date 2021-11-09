@@ -68,6 +68,12 @@ public class MainActivity extends AppCompatActivity {
         init();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        init();
+    }
+
     private void init(){
         recordButton = (ImageButton) findViewById(R.id.record_button);
 
@@ -182,7 +188,7 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 while(isPlaying) {
                     try {
-                        Thread.sleep(1000);
+                        Thread.sleep(500);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -224,6 +230,22 @@ public class MainActivity extends AppCompatActivity {
 
         isPlaying = true;
         curSeekBar.setMax(mediaPlayer.getDuration());
+        curSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if(fromUser){
+                    mediaPlayer.seekTo(progress);
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
+        });
 
 
         mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
