@@ -1,11 +1,13 @@
 package com.example.android;
 
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Build;
@@ -20,6 +22,7 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -41,7 +44,9 @@ import java.util.Date;
 public class SubActivity extends AppCompatActivity {
     Button record_button, memo_button, summary_button;
 
-    String uriName;
+    ImageButton delete_record;
+
+    String uriName, fileName;
 
     InputMethodManager inputMethodManager;
 
@@ -64,26 +69,31 @@ public class SubActivity extends AppCompatActivity {
 
     MediaPlayer mediaPlayer = null;
 
-    File newNamedFile = null;
-
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sub);
 
+        init();
+    }
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void init(){
+        //MainActivity에서 녹음 uri 받아옴
         Intent subIntent = getIntent();
         uriName = subIntent.getStringExtra("uriName");
 
         subView = (LinearLayout) findViewById(R.id.subView);
-
 
         record_date = (TextView) findViewById(R.id.record_date);
 
         dateFormat = (String) record_date.getText();
 
         File file = new File(uriName);
+
+        //file 날짜 지정
         BasicFileAttributes attributes;
+
         try {
             attributes = Files.readAttributes(file.toPath(), BasicFileAttributes.class);
             FileTime time = attributes.creationTime();
@@ -100,11 +110,11 @@ public class SubActivity extends AppCompatActivity {
         record_name = (EditText) findViewById(R.id.record_name);
 
         //이름 저장
-        String fileName = uriName.split("/")[uriName.split("/").length - 1 ];
+        fileName = uriName.split("/")[uriName.split("/").length - 1 ];
 
         record_name.setText(fileName);
 
-        //record_name 변경후 화면 터치시 키보드 내려가고 파일 이름 변경 됨
+        //(만약 키보드나왓을시 다른 화면 선택시) record_name 변경후 화면 터치시 키보드 내려가고 파일 이름 변경 됨
         subView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -118,6 +128,10 @@ public class SubActivity extends AppCompatActivity {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+                file.delete();
+                File file = new File(uriName);
+                fileName = uriName.split("/")[uriName.split("/").length - 1 ];
+                Log.d(TAG, "filename  " + file.getName());
                 inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 inputMethodManager.hideSoftInputFromWindow(record_name.getWindowToken(), 0);
                 record_name.clearFocus();
@@ -126,35 +140,40 @@ public class SubActivity extends AppCompatActivity {
             }
         });
 
+        delete_record = (ImageButton)findViewById(R.id.delete_record);
 
-        record_name.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        //삭제버튼 눌럿을시 alertdialog 생성 file 삭제 기능
+        delete_record.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                boolean handled = false;
+            public void onClick(View v) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(SubActivity.this);
+                builder.setTitle("삭제");
+                builder.setMessage(fileName + "을 삭제하시겠습니까?");
+                builder.setPositiveButton("네", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        file.delete();
+                        finish();
 
-                if(actionId == EditorInfo.IME_ACTION_DONE) {
-                    inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                    inputMethodManager.hideSoftInputFromWindow(record_name.getWindowToken(), 0);
-                    record_name.clearFocus();
-                    handled = true;
-                }
-                return handled;
+                    }
+                });
+                builder.setNegativeButton("아니요", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                });
+                AlertDialog alertDialog = builder.create();
+                alertDialog.show();
             }
         });
 
-
-        Log.d(TAG,"uriname"+uriName);
-
         mediaPlayer = new MediaPlayer();
+
 
         try {
             Log.d(TAG, "file"+file.getName());
-            if (newNamedFile != null){
-                mediaPlayer.setDataSource(newNamedFile.getAbsolutePath());
-            }
-            else {
-                mediaPlayer.setDataSource(file.getAbsolutePath());
-            }
+            mediaPlayer.setDataSource(file.getAbsolutePath());
             mediaPlayer.prepare();
         } catch (IOException e) {
             e.printStackTrace();
@@ -164,6 +183,8 @@ public class SubActivity extends AppCompatActivity {
 
         record_time.setText(String.valueOf((double)mediaPlayer.getDuration()/1000) + "s");
 
+
+        //프래그먼트 구성
         record_button = (Button) findViewById(R.id.record_button);
         memo_button = (Button) findViewById(R.id.memo_button);
         summary_button = (Button) findViewById(R.id.summary_button);
@@ -214,12 +235,5 @@ public class SubActivity extends AppCompatActivity {
         }
     }
 
-
-//    @Override
-//    public void onBackPressed() {
-//        super.onBackPressed();
-//        Log.d(TAG,"here");
-//        MainActivity.onCreate()
-//    }
 }
 
