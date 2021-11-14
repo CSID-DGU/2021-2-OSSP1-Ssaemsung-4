@@ -16,38 +16,21 @@
 """A demo script showing how to DIARIZATION ON WAV USING UIS-RNN."""
 
 
-
+from django.http.response import JsonResponse
 import numpy as np
 import librosa
-import sys
-import os
+import json
 
+from django.shortcuts import render
+from django.core.files.storage import FileSystemStorage
 
 from speakerDiarization.diarization.ghostvlad import toolkits
-#from speakerDiarization.diarization.ghostvlad import model as spkModel
-from speakerDiarization.apps import SpeakerdiarizationConfig as spkModel
+#from speakerDiarization.apps import SpeakerdiarizationConfig as spkModel
 from speakerDiarization.diarization import uisrnn
-import os
-from speakerDiarization.diarization.visualization.viewer import PlotDiar
-import argparse
+from speakerDiarization.diarization.ghostvlad import model as spkModel
 
-
-# parser = argparse.ArgumentParser()
-# # set up training configuration.
-# parser.add_argument('--gpu', default='0', type=str)
-# parser.add_argument('--resume', default=r'ghostvlad/pretrained/weights.h5', type=str)
-# parser.add_argument('--data_path', default='4persons', type=str)
-# # set up network configuration.
-# parser.add_argument('--net', default='resnet34s', choices=['resnet34s', 'resnet34l'], type=str)
-# parser.add_argument('--ghost_cluster', default=2, type=int)
-# parser.add_argument('--vlad_cluster', default=8, type=int)
-# parser.add_argument('--bottleneck_dim', default=512, type=int)
-# parser.add_argument('--aggregation_mode', default='gvlad', choices=['avg', 'vlad', 'gvlad'], type=str)
-# # set up learning rate, training loss and optimizer.
-# parser.add_argument('--loss', default='softmax', choices=['softmax', 'amsoftmax'], type=str)
-# parser.add_argument('--test_type', default='normal', choices=['normal', 'hard', 'extend'], type=str)
-
-# args = parser.parse_args()
+#import os
+# from speakerDiarization.diarization.visualization.viewer import PlotDiar
 
 SAVED_MODEL_NAME = 'speakerDiarization/pretrained/saved_model.uisrnn_benchmark'
 
@@ -146,6 +129,9 @@ def load_data(path, win_length=400, sr=16000, hop_length=160, n_fft=512, embeddi
 
     return utterances_spec, intervals
 
+'''
+    원래는 main 함수
+'''
 def inference(wav_path, embedding_per_second=1.0, overlap_rate=0.5):
     toolkits.initialize_GPU('0')
 
@@ -159,7 +145,9 @@ def inference(wav_path, embedding_per_second=1.0, overlap_rate=0.5):
               'normalize': True,
               }
 
-    network_eval = spkModel.network_eval
+    network_eval = spkModel.vggvox_resnet2d_icassp(input_dim=params['dim'],
+                                                   num_class=params['n_classes'],
+                                                   mode='eval')
 
     network_eval.load_weights(r'speakerDiarization/diarization/ghostvlad/pretrained/weights.h5', by_name=True)
 
@@ -208,7 +196,11 @@ def inference(wav_path, embedding_per_second=1.0, overlap_rate=0.5):
             e = timeDict['stop']
             s = fmtTime(s)  # change point moves to the center of the slice
             e = fmtTime(e)
+            timeDict['start'] = s
+            timeDict['stop'] = e
+
             print(s+' ==> '+e)
+    
 
     # matplot
     '''
@@ -216,8 +208,33 @@ def inference(wav_path, embedding_per_second=1.0, overlap_rate=0.5):
     p.draw()
     p.plot.show()
     ''' 
-
+    return speakerSlice
  
 # Get inferenced results 
+#inference(wav_path=r'speakerDiarization/wavs/rmdmy.wav', embedding_per_second=1.2, overlap_rate=0.4)
 
-inference(wav_path=r'speakerDiarization/wavs/rmdmy.wav', embedding_per_second=1.2, overlap_rate=0.4)
+# Handling POST REQUEST
+def simple_upload(request):
+    if request.method == 'POST' and request.FILES['file']:
+        myfile = request.FILES['file']
+        fs = FileSystemStorage(location='speakerDiarization/wavs', base_url='speakerDiarization/wavs')
+
+        # FileSystemStorage.save(file_name, file_content)
+        filename = fs.save(myfile.name, myfile)
+
+        uploaded_file_url = fs.url(filename)
+        print(filename)
+       
+        data = inference(wav_path=r'speakerDiarization/wavs/'+filename, embedding_per_second=1.2, overlap_rate=0.4)
+
+        keys_values = data.items()
+    
+        new_data = {str(key): value for key, value in keys_values}
+
+        return JsonResponse(new_data)
+        # return render(request, 'success.html', {
+        #     'uploaded_file_url': uploaded_file_url
+        # })
+
+    return render(request, 'fail.html')
+
