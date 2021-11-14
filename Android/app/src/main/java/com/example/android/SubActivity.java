@@ -77,6 +77,7 @@ public class SubActivity extends AppCompatActivity {
 
         init();
     }
+
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void init(){
         //MainActivity에서 녹음 uri 받아옴

@@ -18,8 +18,13 @@ public class RecordDialog {
 
     String TAG = "aa";
     ImageButton cancel_button;
+
+    ImageButton update_button;
     ImageButton record_button;
     ImageButton bookmark_button;
+
+    SoundVisualizerView soundVisualizerView;
+
     private Context context;
 
     Dialog recordDialog;
@@ -41,7 +46,11 @@ public class RecordDialog {
 
         recordDialog.show();
 
+        soundVisualizerView = (SoundVisualizerView)recordDialog.findViewById(R.id.soundVisualizeView);
+
         cancel_button = (ImageButton) recordDialog.findViewById(R.id.cancel_button);
+
+        update_button = (ImageButton) recordDialog.findViewById(R.id.update_button);
         record_button = (ImageButton) recordDialog.findViewById(R.id.record_button);
         bookmark_button = (ImageButton) recordDialog.findViewById(R.id.bookmark_button);
 

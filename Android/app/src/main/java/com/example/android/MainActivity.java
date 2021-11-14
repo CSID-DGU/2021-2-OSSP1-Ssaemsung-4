@@ -2,18 +2,22 @@ package com.example.android;
 
 import static android.content.ContentValues.TAG;
 
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.media.MediaParser;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -27,6 +31,8 @@ import android.widget.SeekBar;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -56,6 +62,8 @@ public class MainActivity extends AppCompatActivity {
     SeekBar preSeekBar = null;
     SeekBar curSeekBar = null;
 
+    public SoundVisualizerView soundVisualizerView;
+
     //리사이클러뷰
     private AudioAdapter audioAdapter;
     private ArrayList<Uri> audioList;
@@ -84,11 +92,21 @@ public class MainActivity extends AppCompatActivity {
                 RecordDialog recordDialog = new RecordDialog(MainActivity.this);
                 recordDialog.callFunction();
 
+                soundVisualizerView = recordDialog.soundVisualizerView;
+
+//                if(mediaRecorder != null){
+//                    soundVisualizerView.onRequestCurrentAmplitude = mediaRecorder.getMaxAmplitude();
+//                }else {
+//                    soundVisualizerView.onRequestCurrentAmplitude = 0;
+//                }
+
+
                 //버튼 누를시 녹음 시작
                 if(checkAudioPermission()) {
                     if(isPlaying){
                         stopAudio();
                     }
+
 
                     Log.d(TAG,"start record");
                     isRecording = true;
@@ -105,6 +123,93 @@ public class MainActivity extends AppCompatActivity {
                         recordDialog.destroyDialog();
                     }
                 });
+
+
+
+                //파일 불러오기
+                recordDialog.update_button.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                        ///storage/emulated/0/Download/2001_3subway2.mp3
+                        String sdPath = "/storage/emulated/0/Download/";
+                        //String sdPath = "/storage/emulated/0/Android/data/com.example.android/files/";
+                        //String sdPath = getAp
+                        Log.d(TAG,"sdPath"+ sdPath);
+
+                        File pa = new File(sdPath);
+
+                        if(pa.exists()){
+                            Log.d(TAG,"aaaaaaaaaaaaaaaaaaaaaa");
+                            String[] list = pa.list();
+                            Log.d(TAG, String.valueOf(list.length));
+
+                        }
+
+                        File sdDir = new File(sdPath);
+                        String[] sdFileListNames = sdDir.list();
+
+                        String sdFileName = sdPath + "sdFileListNames[which]";
+                        String recordPath = getExternalFilesDir("/").getAbsolutePath();
+                        audioFileName = recordPath +"2001_3subway2.mp3";
+                        //audioFileName = recordPath + "/" + sdFileListNames[which];
+
+                        File sdFile = new File("/storage/emulated/0/Download/2001_3subway2.mp3");
+                        File newFile = new File(audioFileName);
+
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            try {
+                                Files.copy(sdFile.toPath(), newFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                        builder.setTitle("불러올 파일을 선택하세요");
+                        //builder.setMessage();
+
+                        builder.setItems(sdFileListNames, new DialogInterface.OnClickListener() {
+                            @RequiresApi(api = Build.VERSION_CODES.O)
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                String sdFileName = sdPath + sdFileListNames[which];
+                                String recordPath = getExternalFilesDir("/").getAbsolutePath();
+                                audioFileName = recordPath + "/" + sdFileListNames[which];
+
+                                File sdFile = new File(sdFileName);
+                                File newFile = new File(audioFileName);
+
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                    try {
+                                        Files.copy(sdFile.toPath(), newFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+
+                                audioUri = Uri.parse(audioFileName);
+
+                                audioList.add(audioUri);
+                                //데이터 갱신
+                                audioAdapter.notifyDataSetChanged();
+
+                            }
+                        });
+
+                        AlertDialog alertDialog = builder.create();
+                        alertDialog.show();
+
+                    }
+                });
+
+                ///sdcard/Download/2001_3subway2.mp3
+                recordDialog.bookmark_button.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                    }
+                });
+
             }
         });
 
@@ -317,6 +422,7 @@ public class MainActivity extends AppCompatActivity {
 
         //녹음 시작
         mediaRecorder.start();
+        soundVisualizerView.startVisualizing(false);
     }
 
     private void stopRecording() {
@@ -326,13 +432,13 @@ public class MainActivity extends AppCompatActivity {
         mediaRecorder.release();
         mediaRecorder = null;
 
+        soundVisualizerView.clearVisualization();
+
         //파일이름을 uri로 변환해서 저장
         audioUri = Uri.parse(audioFileName);
 
-        Log.d(TAG, audioUri.toString());
         audioList.add(audioUri);
 
-        Log.d(TAG, audioList.toString());
         //데이터 갱신
         audioAdapter.notifyDataSetChanged();
     }
