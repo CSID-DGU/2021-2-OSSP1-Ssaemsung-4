@@ -1,0 +1,17 @@
+*~
+*.pyc
+.DS_Store
+*result.txt
+*.uisrnn
+build/*
+dist/*
+uisrnn.egg-info/*
+.coverage
+
+# dataset
+ghostvlad/VoxCeleb/
+ghostvlad/*.npz
+ghostvlad/4persons/*
+
+# pickles
+*.pkl
