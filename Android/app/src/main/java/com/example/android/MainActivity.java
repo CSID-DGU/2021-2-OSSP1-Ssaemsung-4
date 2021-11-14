@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -39,6 +40,8 @@ import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
 
+    public static Context mContext;
+
     ImageButton recordButton;
     //ImageButton recordStopButton;
     RecordDialog recordDialog;
@@ -50,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
     private static int PERMISSION_CODE = 21;
 
     //오디오 파일 녹음 관련 변수
-    private MediaRecorder mediaRecorder;
+    private static MediaRecorder mediaRecorder;
     private String audioFileName;
     private boolean isRecording = false;
     private Uri audioUri = null;
@@ -73,6 +76,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        mContext = this;
+
         init();
     }
 
@@ -90,17 +95,6 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 //레코드 화면 생성
                 RecordDialog recordDialog = new RecordDialog(MainActivity.this);
-                recordDialog.callFunction();
-
-                soundVisualizerView = recordDialog.soundVisualizerView;
-
-//                if(mediaRecorder != null){
-//                    soundVisualizerView.onRequestCurrentAmplitude = mediaRecorder.getMaxAmplitude();
-//                }else {
-//                    soundVisualizerView.onRequestCurrentAmplitude = 0;
-//                }
-
-
                 //버튼 누를시 녹음 시작
                 if(checkAudioPermission()) {
                     if(isPlaying){
@@ -112,7 +106,17 @@ public class MainActivity extends AppCompatActivity {
                     isRecording = true;
                     startRecording();
                 }
+                recordDialog.callFunction();
 
+                soundVisualizerView = recordDialog.soundVisualizerView;
+
+//                if(mediaRecorder != null){
+//                    soundVisualizerView.onRequestCurrentAmplitude = mediaRecorder.getMaxAmplitude();
+//                }else {
+//                    soundVisualizerView.onRequestCurrentAmplitude = 0;
+//                }
+
+                soundVisualizerView.startVisualizing(false);
                 //녹음 화면에서 버튼 누를 시 녹음 종료
                 recordDialog.record_button.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -153,13 +157,13 @@ public class MainActivity extends AppCompatActivity {
                         String recordPath = getExternalFilesDir("/").getAbsolutePath();
                         audioFileName = recordPath +"2001_3subway2.mp3";
                         //audioFileName = recordPath + "/" + sdFileListNames[which];
-
                         File sdFile = new File("/storage/emulated/0/Download/2001_3subway2.mp3");
                         File newFile = new File(audioFileName);
 
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                             try {
                                 Files.copy(sdFile.toPath(), newFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                                //Files.copy("/storage/emulated/0/Download/2001_3subway2.mp3", newFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
@@ -285,6 +289,12 @@ public class MainActivity extends AppCompatActivity {
 
     }
     //init 끝
+    public static int getMaxAmplitude(){
+        if (mediaRecorder != null){
+            return mediaRecorder.getMaxAmplitude();
+        }
+        return 0;
+    }
 
     //seekbar 변경 thread
     public void Thread(){
@@ -422,7 +432,7 @@ public class MainActivity extends AppCompatActivity {
 
         //녹음 시작
         mediaRecorder.start();
-        soundVisualizerView.startVisualizing(false);
+        //soundVisualizerView.startVisualizing(false);
     }
 
     private void stopRecording() {
@@ -442,6 +452,4 @@ public class MainActivity extends AppCompatActivity {
         //데이터 갱신
         audioAdapter.notifyDataSetChanged();
     }
-
-
 }

@@ -1,5 +1,7 @@
 package com.example.android;
 
+import com.example.android.MainActivity;
+
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -32,7 +34,7 @@ public class SoundVisualizerView extends View {
     private boolean isReplaying = false;
     private int replayingPosition = 0;
 
-    int onRequestCurrentAmplitude = 0;
+//    int onRequestCurrentAmplitude = 0;
 
 
     Handler handler = new Handler();
@@ -56,22 +58,22 @@ public class SoundVisualizerView extends View {
 
     private Runnable visualizeRepeatAction(){
         Runnable task = new Runnable() {
+
             @Override
             public void run() {
                 if(!isReplaying) {
 
-                    int currentAmplitude = 0;
-                    Log.d("bb", currentAmplitude + "\n");
-                    drawingAmplitudes.add(currentAmplitude);
-                } else {
-                    replayingPosition++;
+                    int currentAmplitude = ((MainActivity)MainActivity.mContext).getMaxAmplitude();
+                    //Log.d("bb", currentAmplitude + "\n");
+                    drawingAmplitudes.add(0, currentAmplitude);
                 }
-                invalidate();
 
+                invalidate();
                 handler.postDelayed(this, ACTION_INTERVAL);
 
             }
         };
+
         return task;
     }
     @Override
@@ -96,15 +98,14 @@ public class SoundVisualizerView extends View {
 
         float centerY = drawingHeight / 2f;
         float offsetX = drawingWidth;
-
+        int start = 0;
         if (drawingAmplitudes.size() != 0) {
-            if(isReplaying){
-                for(int i =0; i<drawingAmplitudes.size() - replayingPosition; i++){
-                    drawingAmplitudes.remove(i);
-                }
+            if(offsetX < drawingAmplitudes.size()){
+                start = (int) offsetX;
             }
-            for(int amplitude =0; amplitude<drawingAmplitudes.size(); amplitude++){
-                float lineLength = amplitude / MAX_AMPLITUDE * drawingHeight * 0.8F;
+
+            for(int amplitude = start; amplitude<drawingAmplitudes.size(); amplitude++){
+                float lineLength = drawingAmplitudes.get(amplitude) / MAX_AMPLITUDE * drawingHeight * 0.8F;
 
                 offsetX -= LINE_SPACE;
 
