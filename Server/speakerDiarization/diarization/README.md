@@ -1,5 +1,8 @@
 # Speaker-Diarization
 
+Originally from [taylorlu/Speaker-Diarization](https://github.com/taylorlu/Speaker-Diarization)
+
+
 This project contains:
 * Text-independent Speaker recognition module based on VGG-Speaker-recognition
 * Speaker diarization based on UIS-RNN.</br>
