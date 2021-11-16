@@ -53,8 +53,8 @@ public class MainActivity extends AppCompatActivity {
     private static int PERMISSION_CODE = 21;
 
     //오디오 파일 녹음 관련 변수
-    private static MediaRecorder mediaRecorder;
-    private String audioFileName;
+    public static MediaRecorder mediaRecorder;
+    public static String audioFileName;
     private boolean isRecording = false;
     private Uri audioUri = null;
 
@@ -127,6 +127,8 @@ public class MainActivity extends AppCompatActivity {
                         recordDialog.destroyDialog();
                     }
                 });
+
+
 
 
 
@@ -289,12 +291,14 @@ public class MainActivity extends AppCompatActivity {
 
     }
     //init 끝
+
     public static int getMaxAmplitude(){
         if (mediaRecorder != null){
             return mediaRecorder.getMaxAmplitude();
         }
         return 0;
     }
+
 
     //seekbar 변경 thread
     public void Thread(){
@@ -442,7 +446,9 @@ public class MainActivity extends AppCompatActivity {
         mediaRecorder.release();
         mediaRecorder = null;
 
+        soundVisualizerView.stopVisualizing();
         soundVisualizerView.clearVisualization();
+        //soundVisualizerView = null;r
 
         //파일이름을 uri로 변환해서 저장
         audioUri = Uri.parse(audioFileName);

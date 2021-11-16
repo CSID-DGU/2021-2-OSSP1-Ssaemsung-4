@@ -84,7 +84,7 @@ public class AudioAdapter extends RecyclerView.Adapter {
 
         String uriName = String.valueOf(dataModels.get(position));
         File file = new File(uriName);
-        Log.d(TAG,file.getName());
+        //Log.d("here",file.getName());
         recordViewHolder.audioTitle.setText(file.getName());
 
         recordViewHolder.expand_button.setImageResource(selectedItems.get(position)? R.drawable.ic_expand_less : R.drawable.ic_expand_more);

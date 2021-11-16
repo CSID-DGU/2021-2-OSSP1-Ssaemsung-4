@@ -37,7 +37,7 @@ public class SoundVisualizerView extends View {
 //    int onRequestCurrentAmplitude = 0;
 
 
-    Handler handler = new Handler();
+    Handler handler;
 
     public SoundVisualizerView(Context context) {
         super(context);
@@ -61,14 +61,24 @@ public class SoundVisualizerView extends View {
 
             @Override
             public void run() {
+                if(handler == null) {
+                    Log.d("jer","here");
+                    return ;
+                }
                 if(!isReplaying) {
 
                     int currentAmplitude = ((MainActivity)MainActivity.mContext).getMaxAmplitude();
-                    //Log.d("bb", currentAmplitude + "\n");
+                    Log.d("han", String.valueOf(currentAmplitude));
                     drawingAmplitudes.add(0, currentAmplitude);
                 }
 
                 invalidate();
+                //Log.d("handlerpost", String.valueOf(handler));
+                try {
+                    Thread.sleep(ACTION_INTERVAL);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 handler.postDelayed(this, ACTION_INTERVAL);
 
             }
@@ -122,18 +132,25 @@ public class SoundVisualizerView extends View {
 
 
     void startVisualizing(Boolean isReplaying){
+        handler = new Handler();
         this.isReplaying = isReplaying;
         handler.post(visualizeRepeatAction());
     }
 
     void stopVisualizing(){
         replayingPosition = 0;
+        Log.d("stop","here");
+        //핸들러 문제 수정 필요
+
         handler.removeCallbacks(visualizeRepeatAction());
+        handler = null;
+        Log.d("handlerremaaaaaaaaaaaaaaao", String.valueOf(handler));
 
     }
 
     void clearVisualization() {
-        drawingAmplitudes = new ArrayList<>();
+        drawingAmplitudes.clear();
+        Log.d("size", String.valueOf(drawingAmplitudes.size()));
         invalidate();
     }
 

@@ -1,8 +1,10 @@
 package com.example.android;
+import com.example.android.MainActivity;
 
 import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
@@ -13,6 +15,8 @@ import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import java.io.File;
 
 public class RecordDialog {
 
@@ -58,11 +62,16 @@ public class RecordDialog {
             //recordDialog view 삭제
             @Override
             public void onClick(View view) {
+                soundVisualizerView.clearVisualization();
+
+                Uri uriName = Uri.parse(MainActivity.audioFileName);
+                File file = new File(String.valueOf(uriName));
+                file.delete();
                 destroyDialog();
             }
         });
     }
-    public void destroyDialog(){
+    public void destroyDialog() {
         recordDialog.dismiss();
     }
 }
