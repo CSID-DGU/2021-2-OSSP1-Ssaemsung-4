@@ -1,2 +1,3 @@
-# 2021-2-OSSP1-Ssaemsung-4
-임시 디렉토리
+## To Run server
+
+    python run.py 으로 서버 수행 가능 
