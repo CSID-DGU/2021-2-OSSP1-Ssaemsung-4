@@ -68,17 +68,12 @@ public class SoundVisualizerView extends View {
                 if(!isReplaying) {
 
                     int currentAmplitude = ((MainActivity)MainActivity.mContext).getMaxAmplitude();
-                    Log.d("han", String.valueOf(currentAmplitude));
+                    //Log.d("han", String.valueOf(currentAmplitude));
                     drawingAmplitudes.add(0, currentAmplitude);
                 }
 
                 invalidate();
                 //Log.d("handlerpost", String.valueOf(handler));
-                try {
-                    Thread.sleep(ACTION_INTERVAL);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
                 handler.postDelayed(this, ACTION_INTERVAL);
 
             }

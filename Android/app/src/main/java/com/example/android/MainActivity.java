@@ -95,28 +95,23 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 //레코드 화면 생성
                 RecordDialog recordDialog = new RecordDialog(MainActivity.this);
+                recordDialog.callFunction();
                 //버튼 누를시 녹음 시작
                 if(checkAudioPermission()) {
                     if(isPlaying){
                         stopAudio();
                     }
-
-
                     Log.d(TAG,"start record");
                     isRecording = true;
+
                     startRecording();
+
+                    recordDialog.startCountup();
+
+                    soundVisualizerView = recordDialog.soundVisualizerView;
+                    soundVisualizerView.startVisualizing(false);
                 }
-                recordDialog.callFunction();
 
-                soundVisualizerView = recordDialog.soundVisualizerView;
-
-//                if(mediaRecorder != null){
-//                    soundVisualizerView.onRequestCurrentAmplitude = mediaRecorder.getMaxAmplitude();
-//                }else {
-//                    soundVisualizerView.onRequestCurrentAmplitude = 0;
-//                }
-
-                soundVisualizerView.startVisualizing(false);
                 //녹음 화면에서 버튼 누를 시 녹음 종료
                 recordDialog.record_button.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -124,6 +119,8 @@ public class MainActivity extends AppCompatActivity {
                         Log.d(TAG,"stop record");
                         isRecording = false;
                         stopRecording();
+                        recordDialog.stopCountup();
+                        recordDialog.clearCountTime();
                         recordDialog.destroyDialog();
                     }
                 });
@@ -305,6 +302,9 @@ public class MainActivity extends AppCompatActivity {
         Runnable task = new Runnable() {
             @Override
             public void run() {
+                if(!isPlaying){
+                    return ;
+                }
                 while(isPlaying) {
                     try {
                         Thread.sleep(500);

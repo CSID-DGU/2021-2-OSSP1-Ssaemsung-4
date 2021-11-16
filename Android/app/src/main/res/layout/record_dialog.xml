@@ -44,6 +44,14 @@
         android:layout_width="match_parent"
         android:layout_height="150dp" />
 
+
+    <TextView
+        android:id="@+id/timeStamp_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="00:00"
+        android:textAlignment="center"/>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
