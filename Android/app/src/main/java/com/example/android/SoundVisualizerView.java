@@ -62,7 +62,6 @@ public class SoundVisualizerView extends View {
             @Override
             public void run() {
                 if(handler == null) {
-                    Log.d("jer","here");
                     return ;
                 }
                 if(!isReplaying) {
@@ -134,18 +133,18 @@ public class SoundVisualizerView extends View {
 
     void stopVisualizing(){
         replayingPosition = 0;
-        Log.d("stop","here");
+        //Log.d("stop","here");
         //핸들러 문제 수정 필요
 
         handler.removeCallbacks(visualizeRepeatAction());
         handler = null;
-        Log.d("handlerremaaaaaaaaaaaaaaao", String.valueOf(handler));
+        //Log.d("handlerremaaaaaaaaaaaaaaao", String.valueOf(handler));
 
     }
 
     void clearVisualization() {
         drawingAmplitudes.clear();
-        Log.d("size", String.valueOf(drawingAmplitudes.size()));
+        //Log.d("size", String.valueOf(drawingAmplitudes.size()));
         invalidate();
     }
 

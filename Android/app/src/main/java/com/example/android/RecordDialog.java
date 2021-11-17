@@ -80,15 +80,19 @@ public class RecordDialog {
             //recordDialog view 삭제
             @Override
             public void onClick(View view) {
-                soundVisualizerView.clearVisualization();
-                stopCountup();
-
-                Uri uriName = Uri.parse(MainActivity.audioFileName);
-                File file = new File(String.valueOf(uriName));
-                file.delete();
-                destroyDialog();
+                cancelDialog();
             }
         });
+    }
+
+    public void cancelDialog() {
+        soundVisualizerView.clearVisualization();
+        stopCountup();
+
+        Uri uriName = Uri.parse(MainActivity.audioFileName);
+        File file = new File(String.valueOf(uriName));
+        file.delete();
+        destroyDialog();
     }
     public void destroyDialog() {
         recordDialog.dismiss();
@@ -101,7 +105,7 @@ public class RecordDialog {
                 if(handler == null){
                     return ;
                 }
-                Log.d("run","here");
+                //Log.d("run","here");
                 long currentTimeStamp = SystemClock.elapsedRealtime();
                 countTimeSeconds = (int)((currentTimeStamp - startTimeStamp )/1000L);
                 updateCountTime(countTimeSeconds);
@@ -123,18 +127,18 @@ public class RecordDialog {
     }
 
     void stopCountup(){
-        Log.d("stop","stop");
+        //Log.d("stop","stop");
         handler.removeCallbacks(countUpAction());
         handler = null;
     }
 
     void clearCountTime(){
-        Log.d("clear","here");
+        //Log.d("clear","here");
         updateCountTime(0);
     }
 
     private void updateCountTime(int countTimeSeconds) {
-        Log.d("update", String.valueOf(countTimeSeconds));
+        //Log.d("update", String.valueOf(countTimeSeconds));
         int minutes = countTimeSeconds / 60;
         int seconds = countTimeSeconds % 60;
         timeStamp_text.setText(String.format("%02d:%02d", minutes,seconds));

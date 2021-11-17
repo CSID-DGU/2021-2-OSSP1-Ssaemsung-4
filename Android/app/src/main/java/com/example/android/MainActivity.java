@@ -141,39 +141,14 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View v) {
 
-                        ///storage/emulated/0/Download/2001_3subway2.mp3
+                        recordDialog.cancelDialog();
+
+                        //avd -> setting 가서 permission manager 들어가서 storage 어플 허용해주면 됨
                         String sdPath = "/storage/emulated/0/Download/";
-                        //String sdPath = "/storage/emulated/0/Android/data/com.example.android/files/";
-                        //String sdPath = getAp
-                        Log.d(TAG,"sdPath"+ sdPath);
-
-                        File pa = new File(sdPath);
-
-                        if(pa.exists()){
-                            Log.d(TAG,"aaaaaaaaaaaaaaaaaaaaaa");
-                            String[] list = pa.list();
-                            Log.d(TAG, String.valueOf(list.length));
-
-                        }
 
                         File sdDir = new File(sdPath);
                         String[] sdFileListNames = sdDir.list();
 
-                        String sdFileName = sdPath + "sdFileListNames[which]";
-                        String recordPath = getExternalFilesDir("/").getAbsolutePath();
-                        audioFileName = recordPath +"2001_3subway2.mp3";
-                        //audioFileName = recordPath + "/" + sdFileListNames[which];
-                        File sdFile = new File("/storage/emulated/0/Download/2001_3subway2.mp3");
-                        File newFile = new File(audioFileName);
-
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                            try {
-                                Files.copy(sdFile.toPath(), newFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                                //Files.copy("/storage/emulated/0/Download/2001_3subway2.mp3", newFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        }
                         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                         builder.setTitle("불러올 파일을 선택하세요");
                         //builder.setMessage();
@@ -185,12 +160,14 @@ public class MainActivity extends AppCompatActivity {
                                 String sdFileName = sdPath + sdFileListNames[which];
                                 String recordPath = getExternalFilesDir("/").getAbsolutePath();
                                 audioFileName = recordPath + "/" + sdFileListNames[which];
+                                //audioFileName = recordPath + "/" + "dfsdfasfasf.wav";
 
                                 File sdFile = new File(sdFileName);
                                 File newFile = new File(audioFileName);
 
                                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                                     try {
+                                        Log.d("path", String.valueOf(sdFile.toPath()) + newFile.toPath());
                                         Files.copy(sdFile.toPath(), newFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
                                     } catch (IOException e) {
                                         e.printStackTrace();
@@ -216,7 +193,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View v) {
                         int bookmarkTime = recordDialog.getBookMarkTime();
-                        Log.d("book", String.valueOf(bookmarkTime));
+                        //Log.d("book", String.valueOf(bookmarkTime));
                         String sql = "INSERT INTO bookmarkTable('record_name','time') values('" + audioFileName + "','" + bookmarkTime + "');";
                         db.execSQL(sql);
                     }
@@ -428,7 +405,7 @@ public class MainActivity extends AppCompatActivity {
         //파일의 외부 경로 확인
         String recordPath = getExternalFilesDir("/").getAbsolutePath();
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        audioFileName = recordPath + "/" + "RecordExample_" + timeStamp + ".wav";
+        audioFileName = recordPath + "/" + "Record_" + timeStamp + ".wav";
 
         //Media Recorder 생성 및 설정
         mediaRecorder = new MediaRecorder();
