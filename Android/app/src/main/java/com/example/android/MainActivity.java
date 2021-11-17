@@ -127,8 +127,6 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-
-
                 //파일 불러오기
                 recordDialog.update_button.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -419,7 +417,7 @@ public class MainActivity extends AppCompatActivity {
         //파일의 외부 경로 확인
         String recordPath = getExternalFilesDir("/").getAbsolutePath();
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        audioFileName = recordPath + "/" + "RecordExample_" + timeStamp;
+        audioFileName = recordPath + "/" + "RecordExample_" + timeStamp + ".wav";
 
         //Media Recorder 생성 및 설정
         mediaRecorder = new MediaRecorder();
