@@ -14,6 +14,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.sqlite.SQLiteDatabase;
 import android.media.MediaParser;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
@@ -71,10 +72,18 @@ public class MainActivity extends AppCompatActivity {
     private AudioAdapter audioAdapter;
     private ArrayList<Uri> audioList;
 
+    DBHelper helper;
+    SQLiteDatabase db;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //bookmarkdatabase 생성
+        helper = new DBHelper(MainActivity.this, "bookmarkDatabase.db", null, 1);
+        db = helper.getWritableDatabase();
+        helper.onCreate(db);
 
         mContext = this;
 
@@ -203,11 +212,13 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
 
-                ///sdcard/Download/2001_3subway2.mp3
                 recordDialog.bookmark_button.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-
+                        int bookmarkTime = recordDialog.getBookMarkTime();
+                        Log.d("book", String.valueOf(bookmarkTime));
+                        String sql = "INSERT INTO bookmarkTable('record_name','time') values('" + audioFileName + "','" + bookmarkTime + "');";
+                        db.execSQL(sql);
                     }
                 });
 

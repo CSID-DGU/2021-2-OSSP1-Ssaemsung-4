@@ -9,6 +9,7 @@ import androidx.fragment.app.FragmentTransaction;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
@@ -69,11 +70,17 @@ public class SubActivity extends AppCompatActivity {
 
     MediaPlayer mediaPlayer = null;
 
+    DBHelper helper;
+    SQLiteDatabase db;
+
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sub);
+
+        helper = new DBHelper(SubActivity.this, "bookmarkDatabase.db", null, 1);
+        db = helper.getWritableDatabase();
 
         init();
     }
@@ -121,6 +128,7 @@ public class SubActivity extends AppCompatActivity {
             public boolean onTouch(View v, MotionEvent event) {
                 Editable newRecordName = record_name.getText();
                 Path oldPath = Paths.get(uriName);
+                String pasturiName = uriName;
                 uriName = uriName.replaceAll(fileName, String.valueOf(newRecordName));
                 Path newPath = Paths.get(uriName);
                 Log.d(TAG, String.valueOf(uriName));
@@ -130,6 +138,10 @@ public class SubActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
                 file.delete();
+                String pastaudioFileName = pasturiName;
+                String curaudioFileName = uriName;
+                String sql = "UPDATE bookmarkTable SET record_name='" + curaudioFileName + "' WHERE record_name='" + pastaudioFileName + "';";
+                db.execSQL(sql);
                 File file = new File(uriName);
                 fileName = uriName.split("/")[uriName.split("/").length - 1 ];
                 Log.d(TAG, "filename  " + file.getName());
@@ -153,7 +165,13 @@ public class SubActivity extends AppCompatActivity {
                 builder.setPositiveButton("네", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        File file = new File(uriName);
                         file.delete();
+
+                        String audioFileName = uriName;
+                        String sql = "DELETE FROM bookmarkTable WHERE record_name='" + audioFileName + "';";
+                        db.execSQL(sql);
+
                         finish();
 
                     }

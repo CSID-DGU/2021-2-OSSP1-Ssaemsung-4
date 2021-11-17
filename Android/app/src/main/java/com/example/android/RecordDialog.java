@@ -41,6 +41,8 @@ public class RecordDialog {
 
     Handler handler;
 
+    int countTimeSeconds;
+
     private long startTimeStamp = 0L;
 
     private Context context;
@@ -78,7 +80,7 @@ public class RecordDialog {
             //recordDialog view 삭제
             @Override
             public void onClick(View view) {
-                soundVisualizerView.stopVisualizing();
+                soundVisualizerView.clearVisualization();
                 stopCountup();
 
                 Uri uriName = Uri.parse(MainActivity.audioFileName);
@@ -101,13 +103,17 @@ public class RecordDialog {
                 }
                 Log.d("run","here");
                 long currentTimeStamp = SystemClock.elapsedRealtime();
-                int countTimeSeconds = (int)((currentTimeStamp - startTimeStamp )/1000L);
+                countTimeSeconds = (int)((currentTimeStamp - startTimeStamp )/1000L);
                 updateCountTime(countTimeSeconds);
                 handler.postDelayed(this, 1000);
             }
         };
 
         return task;
+    }
+
+    public int getBookMarkTime(){
+        return countTimeSeconds;
     }
 
     void startCountup(){
