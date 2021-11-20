@@ -6,3 +6,7 @@ db.sqlite3
 /static
 .DS_Store
 secrets.json
+
+Server/summarization/models/saved_model/*.json
+Server/summarization/models/saved_tokenizer/*.json
+Server/summarization/text/*.txt

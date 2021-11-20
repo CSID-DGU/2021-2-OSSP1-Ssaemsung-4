@@ -11,4 +11,6 @@ urlpatterns = [
     url(r'^addresses', views.address_list),
     url(r'api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'speakerDiarization/', include('speakerDiarization.urls')),
+    url(r'summarization/', include('summarization.urls')),
+
 ]
