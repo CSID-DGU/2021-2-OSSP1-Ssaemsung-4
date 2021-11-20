@@ -4,6 +4,8 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/Users/bongmin/Desktop/Android/2021-2-OSSP1-Ssaemsung-4/Android/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.26979166666666665" />
+        <entry key="..\:/Users/bongmin/Desktop/Android/2021-2-OSSP1-Ssaemsung-4/Android/app/src/main/res/drawable/ic_add.xml" value="0.14583333333333334" />
+        <entry key="..\:/Users/bongmin/Desktop/Android/2021-2-OSSP1-Ssaemsung-4/Android/app/src/main/res/drawable/ic_add_circle.xml" value="0.26979166666666665" />
         <entry key="..\:/Users/bongmin/Desktop/Android/2021-2-OSSP1-Ssaemsung-4/Android/app/src/main/res/drawable/ic_baseline_bookmark_24.xml" value="0.26979166666666665" />
         <entry key="..\:/Users/bongmin/Desktop/Android/2021-2-OSSP1-Ssaemsung-4/Android/app/src/main/res/drawable/ic_bookmark.xml" value="0.26979166666666665" />
         <entry key="..\:/Users/bongmin/Desktop/Android/2021-2-OSSP1-Ssaemsung-4/Android/app/src/main/res/drawable/ic_cancel.xml" value="0.26979166666666665" />
@@ -11,8 +13,11 @@
         <entry key="..\:/Users/bongmin/Desktop/Android/2021-2-OSSP1-Ssaemsung-4/Android/app/src/main/res/drawable/ic_expand_more.xml" value="0.13489583333333333" />
         <entry key="..\:/Users/bongmin/Desktop/Android/2021-2-OSSP1-Ssaemsung-4/Android/app/src/main/res/drawable/ic_launcher_background.xml" value="0.26979166666666665" />
         <entry key="..\:/Users/bongmin/Desktop/Android/2021-2-OSSP1-Ssaemsung-4/Android/app/src/main/res/drawable/ic_pause.xml" value="0.26979166666666665" />
+        <entry key="..\:/Users/bongmin/Desktop/Android/2021-2-OSSP1-Ssaemsung-4/Android/app/src/main/res/drawable/ic_play.xml" value="0.26979166666666665" />
         <entry key="..\:/Users/bongmin/Desktop/Android/2021-2-OSSP1-Ssaemsung-4/Android/app/src/main/res/drawable/ic_record.xml" value="0.1" />
+        <entry key="..\:/Users/bongmin/Desktop/Android/2021-2-OSSP1-Ssaemsung-4/Android/app/src/main/res/drawable/ic_record_24.xml" value="0.26979166666666665" />
         <entry key="..\:/Users/bongmin/Desktop/Android/2021-2-OSSP1-Ssaemsung-4/Android/app/src/main/res/drawable/ic_trash_can.xml" value="0.14479166666666668" />
+        <entry key="..\:/Users/bongmin/Desktop/Android/2021-2-OSSP1-Ssaemsung-4/Android/app/src/main/res/drawable/ic_update.xml" value="0.26979166666666665" />
         <entry key="..\:/Users/bongmin/Desktop/Android/2021-2-OSSP1-Ssaemsung-4/Android/app/src/main/res/layout-sw600dp/activity_main.xml" value="0.1" />
         <entry key="..\:/Users/bongmin/Desktop/Android/2021-2-OSSP1-Ssaemsung-4/Android/app/src/main/res/layout/activity_main.xml" value="0.2536764705882353" />
         <entry key="..\:/Users/bongmin/Desktop/Android/2021-2-OSSP1-Ssaemsung-4/Android/app/src/main/res/layout/activity_record.xml" value="0.2463768115942029" />
@@ -21,7 +26,7 @@
         <entry key="..\:/Users/bongmin/Desktop/Android/2021-2-OSSP1-Ssaemsung-4/Android/app/src/main/res/layout/fragment_memo.xml" value="0.25364583333333335" />
         <entry key="..\:/Users/bongmin/Desktop/Android/2021-2-OSSP1-Ssaemsung-4/Android/app/src/main/res/layout/fragment_record.xml" value="0.25364583333333335" />
         <entry key="..\:/Users/bongmin/Desktop/Android/2021-2-OSSP1-Ssaemsung-4/Android/app/src/main/res/layout/fragment_summary.xml" value="0.25364583333333335" />
-        <entry key="..\:/Users/bongmin/Desktop/Android/2021-2-OSSP1-Ssaemsung-4/Android/app/src/main/res/layout/item_audio.xml" value="0.4" />
+        <entry key="..\:/Users/bongmin/Desktop/Android/2021-2-OSSP1-Ssaemsung-4/Android/app/src/main/res/layout/item_audio.xml" value="0.2" />
         <entry key="..\:/Users/bongmin/Desktop/Android/2021-2-OSSP1-Ssaemsung-4/Android/app/src/main/res/layout/layout.xml" value="0.25364583333333335" />
         <entry key="..\:/Users/bongmin/Desktop/Android/2021-2-OSSP1-Ssaemsung-4/Android/app/src/main/res/layout/record_dialog.xml" value="0.2" />
         <entry key="..\:/Users/bongmin/Desktop/Android/2021-2-OSSP1-Ssaemsung-4/Android/app/src/main/res/layout/record_layout.xml" value="0.2390625" />
