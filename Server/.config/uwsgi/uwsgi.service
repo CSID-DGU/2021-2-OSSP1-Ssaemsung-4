@@ -1,0 +1,15 @@
+[Unit]
+Description=uWSGI service
+After=syslog.target
+
+[Service]
+ExecStart=/home/sigyebang/anaconda3/envs/r2gen/bin/uwsgi -i /home/sigyebang/projects/2021-2-OSSP1-Ssaemsung-4/Server/.config/uwsgi/restfulapiserver.ini
+
+Restart=always
+KillSignal=SIGQUIT
+Type=notify
+StandardError=syslog
+NotifyAccess=all
+
+[Install]
+WantedBy=multi-user.target
