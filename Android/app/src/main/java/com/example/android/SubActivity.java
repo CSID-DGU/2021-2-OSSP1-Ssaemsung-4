@@ -14,26 +14,19 @@ import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import com.google.android.material.internal.TextWatcherAdapter;
-
-import org.w3c.dom.Text;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -41,13 +34,22 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
+
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import retrofit2.Call;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class SubActivity extends AppCompatActivity {
     Button record_button, memo_button, summary_button;
 
     ImageButton delete_record;
 
-    String uriName, fileName;
+    public static String uriName;
+    String fileName;
 
     InputMethodManager inputMethodManager;
 
@@ -60,6 +62,7 @@ public class SubActivity extends AppCompatActivity {
     TextView record_date, record_time;
 
     String dateFormat;
+    public static Boolean isPlaying = false;
 
     FragmentManager fragmentManager;
     FragmentTransaction fragmentTransaction;
@@ -68,10 +71,16 @@ public class SubActivity extends AppCompatActivity {
     MemoFragment memoFragment;
     SummaryFragment summaryFragment;
 
-    MediaPlayer mediaPlayer = null;
+    public static MediaPlayer mediaPlayer = null;
 
-    DBHelper helper;
+    BookMarkDBHelper helper;
     SQLiteDatabase db;
+
+    BookMarkDBHelper bookMarkDBHelper;
+    STTDBHelper sttDBHelper;
+    SQLiteDatabase bookmarkDB;
+    SQLiteDatabase sttDB;
+
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
@@ -79,10 +88,42 @@ public class SubActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sub);
 
-        helper = new DBHelper(SubActivity.this, "bookmarkDatabase.db", null, 1);
-        db = helper.getWritableDatabase();
+        bookMarkDBHelper = new BookMarkDBHelper(SubActivity.this, "bookmarkDatabase.db", null, 1);
+        bookmarkDB = bookMarkDBHelper.getWritableDatabase();
+        bookMarkDBHelper.onCreate(bookmarkDB);
+
+        sttDBHelper = new STTDBHelper(SubActivity.this, "sttDatabase.db", null,1);
+        sttDB = sttDBHelper.getWritableDatabase();
+        sttDBHelper.onCreate(sttDB);
 
         init();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if(isPlaying == true){
+            stopAudio();
+        }
+        mediaPlayer = null;
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if(isPlaying == true){
+            stopAudio();
+        }
+        mediaPlayer = null;
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if(isPlaying == true){
+            stopAudio();
+        }
+        mediaPlayer = null;
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -113,6 +154,17 @@ public class SubActivity extends AppCompatActivity {
         }catch (IOException e) {
             e.printStackTrace();
         }
+
+        mediaPlayer = new MediaPlayer();
+
+
+        try {
+            Log.d(TAG, "file"+file.getName());
+            mediaPlayer.setDataSource(file.getAbsolutePath());
+            mediaPlayer.prepare();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         record_date.setText(dateFormat);
 
         record_name = (EditText) findViewById(R.id.record_name);
@@ -141,7 +193,11 @@ public class SubActivity extends AppCompatActivity {
                 String pastaudioFileName = pasturiName;
                 String curaudioFileName = uriName;
                 String sql = "UPDATE bookmarkTable SET record_name='" + curaudioFileName + "' WHERE record_name='" + pastaudioFileName + "';";
-                db.execSQL(sql);
+                bookmarkDB.execSQL(sql);
+
+                sql = "UPDATE sttTable SET record_name='" + curaudioFileName + "' WHERE record_name='" + pastaudioFileName + "';";
+                sttDB.execSQL(sql);
+
                 File file = new File(uriName);
                 fileName = uriName.split("/")[uriName.split("/").length - 1 ];
                 Log.d(TAG, "filename  " + file.getName());
@@ -172,6 +228,9 @@ public class SubActivity extends AppCompatActivity {
                         String sql = "DELETE FROM bookmarkTable WHERE record_name='" + audioFileName + "';";
                         db.execSQL(sql);
 
+                        sql = "DELETE FROM sttTable WHERE record_name='" + audioFileName + "';";
+                        sttDB.execSQL(sql);
+
                         finish();
 
                     }
@@ -187,17 +246,6 @@ public class SubActivity extends AppCompatActivity {
             }
         });
 
-        mediaPlayer = new MediaPlayer();
-
-
-        try {
-            Log.d(TAG, "file"+file.getName());
-            mediaPlayer.setDataSource(file.getAbsolutePath());
-            mediaPlayer.prepare();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
         record_time = (TextView) findViewById(R.id.record_time);
 
         record_time.setText(String.valueOf((double)mediaPlayer.getDuration()/1000) + "s");
@@ -212,6 +260,7 @@ public class SubActivity extends AppCompatActivity {
         memoFragment = new MemoFragment();
         summaryFragment = new SummaryFragment();
 
+        setFrag("RecordFragment");
         record_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -234,6 +283,28 @@ public class SubActivity extends AppCompatActivity {
         });
     }
 
+
+//    Retrofit retrofit = new Retrofit.Builder()
+//            .baseUrl("http://34.64.68.234:8080/api/chgSphToTxt/")
+//            .addConverterFactory(GsonConverterFactory.create())
+//            .build();
+//    RetrofitService service = retrofit.create(RetrofitService.class);
+//    String path = "/storage/emulated/0/Android/data/com.example.android/files/토플 지문.wav";
+//
+//    File file = new File(path);
+//    RequestBody fileBody = RequestBody.create(MediaType.parse("audio/*"), file);
+//
+//    //서버에서 받는 키값,파일 이름 string, request body 객체
+//    MultipartBody.Part filePart = MultipartBody.Part.createFormData("file", URLEncoder.encode(file.getName(), "utf-8"), fileBody);
+//    Call<STTPostResult> call = service.request(filePart);
+//
+//    List<STTPostResult> results = (List<STTPostResult>) call.execute().body();
+
+
+
+    //call.
+
+
     //아래 세가지 옵션에 따른 화면 구성
     public void setFrag(String fragName) {
         fragmentManager = getSupportFragmentManager();
@@ -253,6 +324,15 @@ public class SubActivity extends AppCompatActivity {
                 break;
         }
     }
+
+    private void stopAudio(){
+        SubActivity.mediaPlayer.stop();
+        SubActivity.mediaPlayer.reset();
+        SubActivity.mediaPlayer.release();
+
+        SubActivity.isPlaying = false;
+    }
+
 
 }
 

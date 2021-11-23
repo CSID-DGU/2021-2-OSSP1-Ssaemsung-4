@@ -192,7 +192,7 @@ public class AudioAdapter extends RecyclerView.Adapter {
             endtimeText = itemView.findViewById(R.id.endtimeText);
 
 
-            Log.d("a", String.valueOf(getAdapterPosition()));
+            //Log.d("a", String.valueOf(getAdapterPosition()));
 //            File file = new File(String.valueOf(MainActivity.audioList.get(getAdapterPosition())));
 //            MediaPlayer mediaPlayer = new MediaPlayer();
 //
@@ -314,13 +314,13 @@ public class AudioAdapter extends RecyclerView.Adapter {
 
                     if(selectedItems.get(pos)) {
                         selectedItems.delete(pos);
-                        Log.d("here", "del");
+                        //("here", "del");
                         //endtimeText.setText(String.valueOf(mediaPlayer.getDuration()));
 
                     } else {
                         selectedItems.delete(prePosition);
                         selectedItems.put(pos, true);
-                        Log.d("here","put");
+                        //Log.d("here","put");
                         //endtimeText.setText(String.valueOf(mediaPlayer.getDuration()));
 
                     }

@@ -34,11 +34,25 @@ import android.widget.TextView;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
+import okhttp3.RequestBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -73,8 +87,10 @@ public class MainActivity extends AppCompatActivity {
     private AudioAdapter audioAdapter;
     protected static ArrayList<Uri> audioList;
 
-    DBHelper helper;
-    SQLiteDatabase db;
+    BookMarkDBHelper bookMarkDBHelper;
+    STTDBHelper sttDBHelper;
+    SQLiteDatabase bookmarkDB;
+    SQLiteDatabase sttDB;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,9 +98,13 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         //bookmarkdatabase 생성
-        helper = new DBHelper(MainActivity.this, "bookmarkDatabase.db", null, 1);
-        db = helper.getWritableDatabase();
-        helper.onCreate(db);
+        bookMarkDBHelper = new BookMarkDBHelper(MainActivity.this, "bookmarkDatabase.db", null, 1);
+        bookmarkDB = bookMarkDBHelper.getWritableDatabase();
+        bookMarkDBHelper.onCreate(bookmarkDB);
+
+        sttDBHelper = new STTDBHelper(MainActivity.this, "sttDatabase.db", null,1);
+        sttDB = sttDBHelper.getWritableDatabase();
+        sttDBHelper.onCreate(sttDB);
 
         mContext = this;
 
@@ -181,6 +201,8 @@ public class MainActivity extends AppCompatActivity {
                                 //데이터 갱신
                                 audioAdapter.notifyDataSetChanged();
 
+                                PostSTTResult(audioFileName);
+
                             }
                         });
 
@@ -196,7 +218,7 @@ public class MainActivity extends AppCompatActivity {
                         int bookmarkTime = recordDialog.getBookMarkTime();
                         //Log.d("book", String.valueOf(bookmarkTime));
                         String sql = "INSERT INTO bookmarkTable('record_name','time') values('" + audioFileName + "','" + bookmarkTime + "');";
-                        db.execSQL(sql);
+                        bookmarkDB.execSQL(sql);
                     }
                 });
 
@@ -318,6 +340,48 @@ public class MainActivity extends AppCompatActivity {
         audioAdapter.setOnReplayClickListener(new AudioAdapter.OnReplayClickListener() {
             @Override
             public void onReplayClick(View view, int position) {
+                OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                        .connectTimeout(30, TimeUnit.MINUTES)
+                        .readTimeout(30, TimeUnit.MINUTES)
+                        .writeTimeout(30,TimeUnit.MINUTES)
+                        .build();
+
+                Retrofit retrofit = new Retrofit.Builder()
+                        .baseUrl("http://34.64.68.234:8080/api/chgSphToTxt/")
+                        .client(okHttpClient)
+                        .addConverterFactory(GsonConverterFactory.create())
+                        .build();
+                RetrofitService service = retrofit.create(RetrofitService.class);
+                String path = "/storage/emulated/0/Android/data/com.example.android/files/토플 지문.wav";
+
+                File file = new File(path);
+                RequestBody fileBody = RequestBody.create(MediaType.parse("audio/*"), file);
+
+                //서버에서 받는 키값,파일 이름 string, request body 객체
+                MultipartBody.Part filePart = null;
+                try {
+                    filePart = MultipartBody.Part.createFormData("file", URLEncoder.encode(file.getName(), "utf-8"), fileBody);
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+                Call<STTPostResult> call = service.request(filePart);
+                call.enqueue(new Callback<STTPostResult>() {
+                    @Override
+                    public void onResponse(Call<STTPostResult> call, Response<STTPostResult> response) {
+                        if(response.isSuccessful()) {
+                            STTPostResult result = response.body();
+                            Log.d("list", result.getText()[0]);
+                        }else {
+                            Log.d("fail", "fail");
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<STTPostResult> call, Throwable t) {
+                        Log.d(TAG, t.getMessage());
+                    }
+                });
+
             }
         });
 
@@ -364,7 +428,10 @@ public class MainActivity extends AppCompatActivity {
 
                         String audioFileName = uriName;
                         String sql = "DELETE FROM bookmarkTable WHERE record_name='" + audioFileName + "';";
-                        db.execSQL(sql);
+                        bookmarkDB.execSQL(sql);
+
+                        sql = "DELETE FROM sttTable WHERE record_name='" + audioFileName + "';";
+                        sttDB.execSQL(sql);
 
                         onResume();
 
@@ -468,26 +535,6 @@ public class MainActivity extends AppCompatActivity {
 
         isPlaying = true;
         curSeekBar.setMax(mediaPlayer.getDuration());
-//        curSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-//            @Override
-//            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-//                if(fromUser){
-//                    if(mediaPlayer == null) {
-//                        seekBar = curSeekBar;
-//                    }
-//                    mediaPlayer.seekTo(progress);
-//                }
-//            }
-//
-//            @Override
-//            public void onStartTrackingTouch(SeekBar seekBar) {
-//            }
-//
-//            @Override
-//            public void onStopTrackingTouch(SeekBar seekBar) {
-//            }
-//        });
-
 
         mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
@@ -587,5 +634,57 @@ public class MainActivity extends AppCompatActivity {
 
         //데이터 갱신
         audioAdapter.notifyDataSetChanged();
+
+        PostSTTResult(audioFileName);
+    }
+
+    //stt 서버와 연결후 db 에 msg로그 저장
+    private void PostSTTResult(String audioFileName){
+        OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                .connectTimeout(30, TimeUnit.MINUTES)
+                .readTimeout(30, TimeUnit.MINUTES)
+                .writeTimeout(30,TimeUnit.MINUTES)
+                .build();
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("http://34.64.68.234:8080/api/chgSphToTxt/")
+                .client(okHttpClient)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        RetrofitService service = retrofit.create(RetrofitService.class);
+        String path = audioFileName;
+
+        File file = new File(path);
+        RequestBody fileBody = RequestBody.create(MediaType.parse("audio/*"), file);
+
+        //서버에서 받는 키값,파일 이름 string, request body 객체
+        MultipartBody.Part filePart = null;
+        try {
+            filePart = MultipartBody.Part.createFormData("file", URLEncoder.encode(file.getName(), "utf-8"), fileBody);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        Call<STTPostResult> call = service.request(filePart);
+        call.enqueue(new Callback<STTPostResult>() {
+            @Override
+            public void onResponse(Call<STTPostResult> call, Response<STTPostResult> response) {
+                if(response.isSuccessful()) {
+                    STTPostResult result = response.body();
+                    String[] msg_log = result.getMsg_log();
+                    for(int i=0; i< msg_log.length; i++){
+                        String sql = "INSERT INTO sttTable('record_name','msg_log') values('" + audioFileName + "','" + msg_log[i].replace("'","") + "');";
+                        sttDB.execSQL(sql);
+                    }
+                    Log.d("server", "success");
+                }else {
+                    Log.d("fail", "fail");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<STTPostResult> call, Throwable t) {
+                Log.d(TAG, t.getMessage());
+            }
+        });
     }
 }
