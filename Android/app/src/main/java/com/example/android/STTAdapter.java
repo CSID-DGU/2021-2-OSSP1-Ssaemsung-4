@@ -1,6 +1,7 @@
 package com.example.android;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,7 +21,7 @@ public class STTAdapter extends RecyclerView.Adapter{
     private OnSttClickListener sttClickListener = null;
 
     public interface OnSttClickListener {
-        void onSttClick(int position, int time);
+        void onSttClick(int position, double time);
     }
 
     public void setOnSttClickListener(OnSttClickListener sttClickListener){
@@ -56,7 +57,13 @@ public class STTAdapter extends RecyclerView.Adapter{
 
     @Override
     public int getItemCount() {
+        Log.d("count", String.valueOf(sttModels.size()));
         return sttModels.size();
+    }
+
+    public void updateList(ArrayList<String> sttModels){
+        this.sttModels = sttModels;
+        this.notifyDataSetChanged();
     }
 
     public class STTViewHolder extends RecyclerView.ViewHolder{
@@ -83,7 +90,7 @@ public class STTAdapter extends RecyclerView.Adapter{
                 public void onClick(View v) {
                     int pos = getAdapterPosition();
                     String stt = sttModels.get(pos);
-                    int time = (int)Double.parseDouble(stt.split(" ")[0]);
+                    double time = Double.parseDouble(stt.split(" ")[0]);
                     if(pos != RecyclerView.NO_POSITION) {
                         if(sttClickListener != null) {
                             sttClickListener.onSttClick(pos,time);

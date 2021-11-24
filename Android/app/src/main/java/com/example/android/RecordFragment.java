@@ -6,7 +6,9 @@ import android.database.sqlite.SQLiteDatabase;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -18,40 +20,28 @@ import android.view.ViewGroup;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class RecordFragment extends Fragment {
 
     View view;
 
-    private STTAdapter sttAdapter;
-    ArrayList<String> sttList;
+    public static STTAdapter sttAdapter;
 
-    STTDBHelper sttDBHelper;
-    SQLiteDatabase sttDB;
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         view = inflater.inflate(R.layout.fragment_record, container, false);
-
         RecyclerView sttRecyclerView = (RecyclerView) view.findViewById(R.id.sttRecyclerView);
-
-        sttDBHelper = new STTDBHelper(getActivity().getApplicationContext(), "sttDatabase.db", null,1);
-        sttDB = sttDBHelper.getWritableDatabase();
-        Cursor cursor = sttDB.rawQuery("SELECT msg_log FROM sttTable WHERE record_name='" + SubActivity.uriName +"'", null);
-
-        sttList = new ArrayList<>();
-
-        while(cursor.moveToNext()){
-            String msg_log = cursor.getString(0);
-            Log.d("msg", msg_log);
-            sttList.add(msg_log);
-        }
-        Log.d("sttlist", String.valueOf(sttList.size()));
-
-
-        sttAdapter = new STTAdapter(getActivity().getApplicationContext(), sttList);
+        sttAdapter = new STTAdapter(getActivity().getApplicationContext(), SubActivity.sttList);
         sttRecyclerView.setAdapter(sttAdapter);
         LinearLayoutManager mLayoutManager = new LinearLayoutManager(getActivity().getApplicationContext());
         mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
@@ -59,7 +49,7 @@ public class RecordFragment extends Fragment {
 
         sttAdapter.setOnSttClickListener(new STTAdapter.OnSttClickListener() {
             @Override
-            public void onSttClick(int position, int time) {
+            public void onSttClick(int position, double time) {
                 Log.d("isplay", String.valueOf(SubActivity.isPlaying));
                 if(SubActivity.isPlaying == true) {
                     stopAudio();
@@ -77,7 +67,7 @@ public class RecordFragment extends Fragment {
 
                 SubActivity.isPlaying = true;
                 Log.d("time", String.valueOf(time * 1000));
-                SubActivity.mediaPlayer.seekTo(time * 1000);
+                SubActivity.mediaPlayer.seekTo((int)(time * 1000));
                 SubActivity.mediaPlayer.start();
             }
         });
@@ -88,6 +78,9 @@ public class RecordFragment extends Fragment {
                 stopAudio();
             }
         });
+
+
+
         return view;
     }
 
@@ -98,4 +91,11 @@ public class RecordFragment extends Fragment {
 
         SubActivity.isPlaying = false;
     }
+
+    public void refreshList(){
+        Log.d("he", String.valueOf(SubActivity.sttList.size()));
+        sttAdapter.updateList(SubActivity.sttList);
+    }
+
+
 }

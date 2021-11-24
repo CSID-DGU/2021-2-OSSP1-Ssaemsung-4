@@ -34,6 +34,7 @@ public class STTPostResult {
     public String toString() {
         return "PostResult{" +
                 "start_time" + start_time +
+                "msg_log" + msg_log +
                 "text" + text +
                 "speaker_no" + speaker_no +
                 "}";

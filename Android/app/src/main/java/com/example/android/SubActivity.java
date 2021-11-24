@@ -9,6 +9,7 @@ import androidx.fragment.app.FragmentTransaction;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.media.MediaPlayer;
 import android.os.Build;
@@ -33,8 +34,11 @@ import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -49,6 +53,12 @@ public class SubActivity extends AppCompatActivity {
     ImageButton delete_record;
 
     public static String uriName;
+
+    public static ArrayList<String> sttList;
+    public static ArrayList<String> speakerList;
+    public static ArrayList<String> copysttList;
+
+
     String fileName;
 
     InputMethodManager inputMethodManager;
@@ -56,6 +66,7 @@ public class SubActivity extends AppCompatActivity {
     String TAG = "aa";
 
     LinearLayout subView;
+    LinearLayout speakerView;
 
     EditText record_name;
 
@@ -133,6 +144,7 @@ public class SubActivity extends AppCompatActivity {
         uriName = subIntent.getStringExtra("uriName");
 
         subView = (LinearLayout) findViewById(R.id.subView);
+        speakerView = (LinearLayout) findViewById(R.id.speakerView);
 
         record_date = (TextView) findViewById(R.id.record_date);
 
@@ -159,7 +171,7 @@ public class SubActivity extends AppCompatActivity {
 
 
         try {
-            Log.d(TAG, "file"+file.getName());
+            //Log.d(TAG, "file"+file.getName());
             mediaPlayer.setDataSource(file.getAbsolutePath());
             mediaPlayer.prepare();
         } catch (IOException e) {
@@ -248,13 +260,38 @@ public class SubActivity extends AppCompatActivity {
 
         record_time = (TextView) findViewById(R.id.record_time);
 
-        record_time.setText(String.valueOf((double)mediaPlayer.getDuration()/1000) + "s");
+        int time = mediaPlayer.getDuration();
+        time /= 1000;
+        int minutes = time / 60;
+        int seconds = time % 60;
 
+        record_time.setText(String.format("%02d:%02d", minutes,seconds));
 
         //프래그먼트 구성
         record_button = (Button) findViewById(R.id.record_button);
         memo_button = (Button) findViewById(R.id.memo_button);
         summary_button = (Button) findViewById(R.id.summary_button);
+
+        Cursor cursor = sttDB.rawQuery("SELECT msg_log FROM sttTable WHERE record_name='" + SubActivity.uriName +"'", null);
+
+        sttList = new ArrayList<>();
+
+        while(cursor.moveToNext()){
+            String msg_log = cursor.getString(0);
+            //Log.d("msg", msg_log);
+            sttList.add(msg_log);
+        }
+
+        copysttList = (ArrayList<String>) sttList.clone();
+
+        //speakerbutton 만들기
+        ArrayList<String> speakerLists = new ArrayList<>();
+        for(int i =0; i<sttList.size(); i++){
+            speakerLists.add(sttList.get(i).split(":")[0].split("-")[1]);
+        }
+
+        Set<String> set = new HashSet<String>(speakerLists);
+        speakerList = new ArrayList<String>(set);
 
         recordFragment = new RecordFragment();
         memoFragment = new MemoFragment();
@@ -281,38 +318,52 @@ public class SubActivity extends AppCompatActivity {
                 setFrag("SummaryFragment");
             }
         });
+
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(-2, -2);
+
+        Button[] speakerButton = new Button[speakerList.size()];
+        for(int i=0; i<speakerList.size(); i++){
+            //Log.d("speaker", speakerList.get(i));
+            speakerButton[i] = new Button(this);
+            speakerButton[i].setAllCaps(false);
+            speakerButton[i].setText(speakerList.get(i));
+            speakerButton[i].setLayoutParams(params);
+            int speakerNum = i;
+            speakerButton[i].setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    sttList = null;
+                    sttList = new ArrayList<>();
+                    for(int j =0; j< copysttList.size(); j++){
+                        //Log.d("st",copysttList.get(j));
+                        //Log.d("sp", speakerList.get(speakerNum));
+                        if(copysttList.get(j).contains(speakerList.get(speakerNum))){
+                            //Log.d("in","in");
+                            sttList.add(copysttList.get(j));
+                        }
+
+                    }
+                    recordFragment.refreshList();
+
+
+                }
+            });
+            speakerView.addView(speakerButton[i]);
+
+        }
+
+
     }
 
-
-//    Retrofit retrofit = new Retrofit.Builder()
-//            .baseUrl("http://34.64.68.234:8080/api/chgSphToTxt/")
-//            .addConverterFactory(GsonConverterFactory.create())
-//            .build();
-//    RetrofitService service = retrofit.create(RetrofitService.class);
-//    String path = "/storage/emulated/0/Android/data/com.example.android/files/토플 지문.wav";
-//
-//    File file = new File(path);
-//    RequestBody fileBody = RequestBody.create(MediaType.parse("audio/*"), file);
-//
-//    //서버에서 받는 키값,파일 이름 string, request body 객체
-//    MultipartBody.Part filePart = MultipartBody.Part.createFormData("file", URLEncoder.encode(file.getName(), "utf-8"), fileBody);
-//    Call<STTPostResult> call = service.request(filePart);
-//
-//    List<STTPostResult> results = (List<STTPostResult>) call.execute().body();
-
-
-
-    //call.
-
-
-    //아래 세가지 옵션에 따른 화면 구성
     public void setFrag(String fragName) {
         fragmentManager = getSupportFragmentManager();
         fragmentTransaction = fragmentManager.beginTransaction();
         switch (fragName) {
             case "RecordFragment" :
+                sttList = (ArrayList<String>) copysttList.clone();
                 fragmentTransaction.replace(R.id.frameView, recordFragment);
                 fragmentTransaction.commit();
+                //recordFragment.refreshList();
                 break;
             case "MemoFragment" :
                 fragmentTransaction.replace(R.id.frameView, memoFragment);
@@ -323,6 +374,7 @@ public class SubActivity extends AppCompatActivity {
                 fragmentTransaction.commit();
                 break;
         }
+
     }
 
     private void stopAudio(){
@@ -331,6 +383,11 @@ public class SubActivity extends AppCompatActivity {
         SubActivity.mediaPlayer.release();
 
         SubActivity.isPlaying = false;
+    }
+
+    public void refreshFrag(String fragName){
+        fragmentTransaction.detach(recordFragment).attach(recordFragment).commit();
+
     }
 
 
