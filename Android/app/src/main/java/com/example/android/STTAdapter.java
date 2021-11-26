@@ -1,6 +1,9 @@
 package com.example.android;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.os.Handler;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +20,8 @@ public class STTAdapter extends RecyclerView.Adapter{
 
     ArrayList<String> sttModels;
     Context context;
+
+    Handler handler;
 
     private OnSttClickListener sttClickListener = null;
 
@@ -44,6 +49,7 @@ public class STTAdapter extends RecyclerView.Adapter{
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+        Log.d("bind", "bind");
         STTViewHolder sttViewHolder = (STTViewHolder) holder;
         //"1.8 Sec - Speaker 3: test for part 1 passage 1 listen to a conversation between a student and her professor"
         String stt = sttModels.get(position);
@@ -53,11 +59,20 @@ public class STTAdapter extends RecyclerView.Adapter{
         int seconds = time % 60;
         sttViewHolder.timeText.setText((String.format("%02d:%02d", minutes,seconds)));
         sttViewHolder.msgText.setText(stt.split(":")[1]);
+        if(SubActivity.isPlaying == true) {
+            if ((int) (Double.parseDouble(sttModels.get(position).split(" ")[0]) * 1000) <= SubActivity.mediaPlayer.getCurrentPosition() &&
+                    (int) (Double.parseDouble(sttModels.get(position + 1).split(" ")[0]) * 1000) > SubActivity.mediaPlayer.getCurrentPosition()) {
+                sttViewHolder.sttView.setBackgroundColor(Color.GRAY);
+            } else {
+                sttViewHolder.sttView.setBackgroundColor(Color.WHITE);
+            }
+        }
+
     }
+
 
     @Override
     public int getItemCount() {
-        Log.d("count", String.valueOf(sttModels.size()));
         return sttModels.size();
     }
 
@@ -65,6 +80,10 @@ public class STTAdapter extends RecyclerView.Adapter{
         this.sttModels = sttModels;
         this.notifyDataSetChanged();
     }
+
+//    public void changeTextColor(){
+//
+//    }
 
     public class STTViewHolder extends RecyclerView.ViewHolder{
 
@@ -101,6 +120,24 @@ public class STTAdapter extends RecyclerView.Adapter{
             });
         }
     }
+
+//    private Runnable remarkStt(){
+//        Runnable task = new Runnable() {
+//            @Override
+//            public void run() {
+//                if(handler == null){
+//                    return ;
+//                }
+//                //Log.d("run","here");
+//                long currentTimeStamp = SystemClock.elapsedRealtime();
+//                countTimeSeconds = (int)((currentTimeStamp - startTimeStamp )/1000L);
+//                updateCountTime(countTimeSeconds);
+//                handler.postDelayed(this, 1000);
+//            }
+//        };
+//
+//        return task;
+//    }
 
 
 }

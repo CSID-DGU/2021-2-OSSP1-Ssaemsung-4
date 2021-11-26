@@ -28,19 +28,17 @@ public class RecordFragment extends Fragment {
 
     View view;
 
+    RecyclerView sttRecyclerView;
+
     public static STTAdapter sttAdapter;
 
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         view = inflater.inflate(R.layout.fragment_record, container, false);
-        RecyclerView sttRecyclerView = (RecyclerView) view.findViewById(R.id.sttRecyclerView);
+        sttRecyclerView = (RecyclerView) view.findViewById(R.id.sttRecyclerView);
         sttAdapter = new STTAdapter(getActivity().getApplicationContext(), SubActivity.sttList);
         sttRecyclerView.setAdapter(sttAdapter);
         LinearLayoutManager mLayoutManager = new LinearLayoutManager(getActivity().getApplicationContext());
@@ -71,6 +69,7 @@ public class RecordFragment extends Fragment {
                 SubActivity.mediaPlayer.start();
             }
         });
+        Thread();
 
         SubActivity.mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
@@ -79,9 +78,50 @@ public class RecordFragment extends Fragment {
             }
         });
 
-
-
         return view;
+    }
+
+    public void Thread(){
+        Runnable task = new Runnable() {
+            @Override
+            public void run() {
+                while(true){
+                    if(SubActivity.isFinish || !SubActivity.fragmentMode.equals("RecordFragment")){
+                        return ;
+                    }
+                    Log.d("chag", "run");
+                    if(SubActivity.isPlaying){
+                        for(int i=0; i< sttAdapter.sttModels.size();i++){
+                            if(SubActivity.isPlaying == true) {
+                                if ((int) (Double.parseDouble(sttAdapter.sttModels.get(i).split(" ")[0]) * 1000) <= SubActivity.mediaPlayer.getCurrentPosition() &&
+                                        (int) (Double.parseDouble(sttAdapter.sttModels.get(i + 1).split(" ")[0]) * 1000) > SubActivity.mediaPlayer.getCurrentPosition()){
+                                    //notifyItemChanged(i);
+                                    Log.d("cj","ere");
+                                    int finalI = i;
+                                    getActivity().runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            sttAdapter.notifyDataSetChanged();
+                                            sttRecyclerView.scrollToPosition(finalI);
+                                        }
+                                    });
+                                    break;
+                                }
+                            }
+                        }
+                        try {
+                            Thread.sleep(500);
+                            Log.d("th", "sleep");
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+
+            }
+        };
+        Thread thread = new Thread(task);
+        thread.start();
     }
 
     private void stopAudio(){

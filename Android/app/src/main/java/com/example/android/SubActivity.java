@@ -27,7 +27,6 @@ import android.widget.TextView;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -37,18 +36,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
-import okhttp3.MediaType;
-import okhttp3.MultipartBody;
-import okhttp3.RequestBody;
-import retrofit2.Call;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
-
 public class SubActivity extends AppCompatActivity {
-    Button record_button, memo_button, summary_button;
+    Button record_button, bookmark_button, summary_button;
 
     ImageButton delete_record;
 
@@ -57,6 +48,10 @@ public class SubActivity extends AppCompatActivity {
     public static ArrayList<String> sttList;
     public static ArrayList<String> speakerList;
     public static ArrayList<String> copysttList;
+
+    public static boolean isFinish = false;
+
+    public static String fragmentMode;
 
 
     String fileName;
@@ -79,7 +74,7 @@ public class SubActivity extends AppCompatActivity {
     FragmentTransaction fragmentTransaction;
 
     RecordFragment recordFragment;
-    MemoFragment memoFragment;
+    BookMarkFragment bookMarkFragment;
     SummaryFragment summaryFragment;
 
     public static MediaPlayer mediaPlayer = null;
@@ -98,6 +93,8 @@ public class SubActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sub);
+
+        isFinish = false;
 
         bookMarkDBHelper = new BookMarkDBHelper(SubActivity.this, "bookmarkDatabase.db", null, 1);
         bookmarkDB = bookMarkDBHelper.getWritableDatabase();
@@ -134,6 +131,7 @@ public class SubActivity extends AppCompatActivity {
         if(isPlaying == true){
             stopAudio();
         }
+        isFinish = true;
         mediaPlayer = null;
     }
 
@@ -269,7 +267,7 @@ public class SubActivity extends AppCompatActivity {
 
         //프래그먼트 구성
         record_button = (Button) findViewById(R.id.record_button);
-        memo_button = (Button) findViewById(R.id.memo_button);
+        bookmark_button = (Button) findViewById(R.id.bookmark_button);
         summary_button = (Button) findViewById(R.id.summary_button);
 
         Cursor cursor = sttDB.rawQuery("SELECT msg_log FROM sttTable WHERE record_name='" + SubActivity.uriName +"'", null);
@@ -294,7 +292,7 @@ public class SubActivity extends AppCompatActivity {
         speakerList = new ArrayList<String>(set);
 
         recordFragment = new RecordFragment();
-        memoFragment = new MemoFragment();
+        bookMarkFragment = new BookMarkFragment();
         summaryFragment = new SummaryFragment();
 
         setFrag("RecordFragment");
@@ -305,10 +303,10 @@ public class SubActivity extends AppCompatActivity {
             }
         });
 
-        memo_button.setOnClickListener(new View.OnClickListener() {
+        bookmark_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                setFrag("MemoFragment");
+                setFrag("BookMarkFragment");
             }
         });
 
@@ -360,16 +358,19 @@ public class SubActivity extends AppCompatActivity {
         fragmentTransaction = fragmentManager.beginTransaction();
         switch (fragName) {
             case "RecordFragment" :
+                fragmentMode = "RecordFragment";
                 sttList = (ArrayList<String>) copysttList.clone();
                 fragmentTransaction.replace(R.id.frameView, recordFragment);
                 fragmentTransaction.commit();
                 //recordFragment.refreshList();
                 break;
-            case "MemoFragment" :
-                fragmentTransaction.replace(R.id.frameView, memoFragment);
+            case "BookMarkFragment" :
+                fragmentMode = "BookMarkFragment";
+                fragmentTransaction.replace(R.id.frameView, bookMarkFragment);
                 fragmentTransaction.commit();
                 break;
             case "SummaryFragment" :
+                fragmentMode = "SummaryFragment";
                 fragmentTransaction.replace(R.id.frameView, summaryFragment);
                 fragmentTransaction.commit();
                 break;
