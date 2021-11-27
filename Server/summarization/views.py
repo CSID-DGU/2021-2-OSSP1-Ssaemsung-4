@@ -5,6 +5,7 @@ from django.http.response import JsonResponse
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 from typing import List
 
+
 # Create your views here.
 
 
@@ -27,6 +28,11 @@ def summarization_pipeline(text: List[str]) -> List[str]:
     input_ids = tokenizer.batch_encode_plus(
         text, truncation=True, padding=True, return_tensors='pt', max_length=1024)['input_ids']
     summary_ids = model.generate(input_ids)
+    '''
+    model.generate(
+     inputs["input_ids"], max_length=150, min_length=40, length_penalty=2.0, num_beams=4, early_stopping=True
+    )  
+    '''
     summaries = [tokenizer.decode(
         s, skip_special_tokens=True, clean_up_tokenization_spaces=False) for s in summary_ids]
     return summaries
@@ -60,3 +66,17 @@ def summarization(request):
         # })
 
     return JsonResponse({'status': 'false', 'message': "FAIL"}, status=500)
+
+
+def evaluation():
+    import torch   
+    from datasets import load_metric,load_dataset
+    
+    dataset = load_dataset("samsum")
+    metric = load_metric('rouge', num_process=torch.distributed.get_world_size(), process_id=torch.distributed.get_rank())
+
+    for model_input, gold_references in dataset["text"]:
+        model_predictions = model(model_input)
+        metric.add_batch(predictions=model_predictions, references=gold_references)
+
+    final_score = metric.compute() 
