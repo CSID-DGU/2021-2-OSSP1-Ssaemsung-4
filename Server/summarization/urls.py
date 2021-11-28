@@ -7,6 +7,6 @@ from . import views
 app_name = "summarization"
 
 urlpatterns = [
-    # two paths: with or without given audio
-    path("", views.summarization, name="index"),
+    path("evaluation", views.evaluation, name="index"),
+    path("", views.summarization, name="index")
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

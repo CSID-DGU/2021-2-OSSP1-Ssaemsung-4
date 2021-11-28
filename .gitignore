@@ -10,3 +10,5 @@ secrets.json
 Server/summarization/models/saved_model/*.json
 Server/summarization/models/saved_tokenizer/*.json
 Server/summarization/text/*.txt
+Server/summarization/models/saved_model/pytorch_model.bin
+Server/summarization/models/saved_tokenizer/merges.txt
