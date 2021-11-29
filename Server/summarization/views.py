@@ -1,10 +1,9 @@
-from django.shortcuts import render
-from django.core.files.storage import FileSystemStorage
-from django.http.response import JsonResponse
-
-from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 from typing import List
 
+from django.core.files.storage import FileSystemStorage
+from django.http.response import JsonResponse
+from django.shortcuts import render
+from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
 
 # Create your views here.
 
@@ -20,7 +19,7 @@ from typing import List
 tokenizer = AutoTokenizer.from_pretrained(
     "summarization/models/saved_tokenizer", return_dict=False)
 model = AutoModelForSeq2SeqLM.from_pretrained(
-    "summarization/models/saved_model",return_dict=False)
+    "summarization/models/saved_model", return_dict=False)
 
 
 # summarization pipeline
@@ -66,21 +65,3 @@ def summarization(request):
         # })
 
     return JsonResponse({'status': 'false', 'message': "FAIL"}, status=500)
-
-
-def evaluation(request):
-    import torch   
-    from datasets import load_metric,load_dataset
-    
-    dataset = load_dataset("samsum")
-    metric = load_metric('rouge')
-
-    for id, model_input, gold_references in dataset["test"]:
-        model_predictions = model(model_input, return_dict=False)
-        metric.add_batch(predictions=model_predictions, references=gold_references)
-
-    final_score = metric.compute() 
-    print(final_score)
-    
-    
-# evaluation()
