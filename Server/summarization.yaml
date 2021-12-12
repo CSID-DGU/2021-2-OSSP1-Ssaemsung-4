@@ -1,4 +1,4 @@
-name: r2gen
+name: server
 channels:
   - pytorch
   - defaults
