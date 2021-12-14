@@ -21,6 +21,7 @@ import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -165,10 +166,19 @@ public class MainActivity extends AppCompatActivity {
                         recordDialog.cancelDialog();
 
                         //avd -> setting 가서 permission manager 들어가서 storage 어플 허용해주면 됨
-                        String sdPath = "/storage/emulated/0/Download/";
+                        //String sdPath = "/storage/emulated/0/Download/";
+                        File sdPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
 
-                        File sdDir = new File(sdPath);
-                        String[] sdFileListNames = sdDir.list();
+                        //String sdPath =  "/mnt/sdcard/Download/sdcard/emulater/0/Download";
+
+
+
+                        Log.d("pathhere", String.valueOf(sdPath));
+
+
+                        //File sdDir = new File(sdPath);
+                        //String[] sdFileListNames = sdDir.list();
+                        String[] sdFileListNames = sdPath.list();
 
                         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                         builder.setTitle("불러올 파일을 선택하세요");
@@ -178,7 +188,7 @@ public class MainActivity extends AppCompatActivity {
                             @RequiresApi(api = Build.VERSION_CODES.O)
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                String sdFileName = sdPath + sdFileListNames[which];
+                                String sdFileName = String.valueOf(sdPath) + "/" + sdFileListNames[which];
                                 String recordPath = getExternalFilesDir("/").getAbsolutePath();
                                 audioFileName = recordPath + "/" + sdFileListNames[which];
                                 //audioFileName = recordPath + "/" + "dfsdfasfasf.wav";
@@ -275,7 +285,7 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     //전에 플레이어 정지시켜놓고 다른 플레이어 시작시
                     if(preSeekBar != null && preSeekBar != curSeekBar){
-                        Log.d(TAG,"preseekbar");
+                        //Log.d(TAG,"preseekbar");
                         preSeekBar.setProgress(0);
                         stopAudio(currenttimeText);
                     }
@@ -340,47 +350,8 @@ public class MainActivity extends AppCompatActivity {
         audioAdapter.setOnReplayClickListener(new AudioAdapter.OnReplayClickListener() {
             @Override
             public void onReplayClick(View view, int position) {
-                OkHttpClient okHttpClient = new OkHttpClient.Builder()
-                        .connectTimeout(30, TimeUnit.MINUTES)
-                        .readTimeout(30, TimeUnit.MINUTES)
-                        .writeTimeout(30,TimeUnit.MINUTES)
-                        .build();
-
-                Retrofit retrofit = new Retrofit.Builder()
-                        .baseUrl("http://34.64.68.234:8080/api/chgSphToTxt/")
-                        .client(okHttpClient)
-                        .addConverterFactory(GsonConverterFactory.create())
-                        .build();
-                RetrofitService service = retrofit.create(RetrofitService.class);
-                String path = "/storage/emulated/0/Android/data/com.example.android/files/토플 지문.wav";
-
-                File file = new File(path);
-                RequestBody fileBody = RequestBody.create(MediaType.parse("audio/*"), file);
-
-                //서버에서 받는 키값,파일 이름 string, request body 객체
-                MultipartBody.Part filePart = null;
-                try {
-                    filePart = MultipartBody.Part.createFormData("file", URLEncoder.encode(file.getName(), "utf-8"), fileBody);
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                }
-                Call<STTPostResult> call = service.request(filePart);
-                call.enqueue(new Callback<STTPostResult>() {
-                    @Override
-                    public void onResponse(Call<STTPostResult> call, Response<STTPostResult> response) {
-                        if(response.isSuccessful()) {
-                            STTPostResult result = response.body();
-                            Log.d("list", result.getText()[0]);
-                        }else {
-                            Log.d("fail", "fail");
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<STTPostResult> call, Throwable t) {
-                        Log.d(TAG, t.getMessage());
-                    }
-                });
+//                stopAudio();
+//                playAudio();
 
             }
         });
@@ -494,7 +465,7 @@ public class MainActivity extends AppCompatActivity {
                     curSeekBar.setProgress(mediaPlayer.getCurrentPosition());
                     runOnUiThread(new Runnable(){
                         public void run() {
-                            Log.d("here", String.valueOf(mediaPlayer.getCurrentPosition()));
+                            //Log.d("here", String.valueOf(mediaPlayer.getCurrentPosition()));
                             setTimeText(currenttimeText, mediaPlayer.getCurrentPosition());
                         }
                     });
@@ -601,9 +572,12 @@ public class MainActivity extends AppCompatActivity {
         //Media Recorder 생성 및 설정
         mediaRecorder = new MediaRecorder();
         mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-        mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+        mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.AMR_NB);
         mediaRecorder.setOutputFile(audioFileName);
         mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+        mediaRecorder.setAudioChannels(2);
+        mediaRecorder.setAudioSamplingRate(44100);
+        mediaRecorder.setAudioEncodingBitRate(192000);
 
         try {
             mediaRecorder.prepare();
@@ -640,6 +614,7 @@ public class MainActivity extends AppCompatActivity {
 
     //stt 서버와 연결후 db 에 msg로그 저장
     private void PostSTTResult(String audioFileName){
+        Log.d("stt", "sttstart");
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
                 .connectTimeout(30, TimeUnit.MINUTES)
                 .readTimeout(30, TimeUnit.MINUTES)
@@ -671,7 +646,15 @@ public class MainActivity extends AppCompatActivity {
                 if(response.isSuccessful()) {
                     STTPostResult result = response.body();
                     String[] msg_log = result.getMsg_log();
+                    String msg = result.toString();
+                    Log.d("msg", msg);
+                    //null 값 반환
+                    //D/msg: PostResult{start_timenullmsg_lognulltextnullspeaker_nonull}
+                    if(msg_log == null){
+                        return ;
+                    }
                     for(int i=0; i< msg_log.length; i++){
+                        Log.d("log", msg_log[i]);
                         String sql = "INSERT INTO sttTable('record_name','msg_log') values('" + audioFileName + "','" + msg_log[i].replace("'","") + "');";
                         sttDB.execSQL(sql);
                     }

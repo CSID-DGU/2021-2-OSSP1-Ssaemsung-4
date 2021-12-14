@@ -78,9 +78,9 @@ public class SubActivity extends AppCompatActivity {
     SummaryFragment summaryFragment;
 
     public static MediaPlayer mediaPlayer = null;
-
-    BookMarkDBHelper helper;
-    SQLiteDatabase db;
+//
+//    BookMarkDBHelper helper;
+//    SQLiteDatabase db;
 
     BookMarkDBHelper bookMarkDBHelper;
     STTDBHelper sttDBHelper;
@@ -236,7 +236,7 @@ public class SubActivity extends AppCompatActivity {
 
                         String audioFileName = uriName;
                         String sql = "DELETE FROM bookmarkTable WHERE record_name='" + audioFileName + "';";
-                        db.execSQL(sql);
+                        bookmarkDB.execSQL(sql);
 
                         sql = "DELETE FROM sttTable WHERE record_name='" + audioFileName + "';";
                         sttDB.execSQL(sql);
@@ -359,6 +359,7 @@ public class SubActivity extends AppCompatActivity {
         switch (fragName) {
             case "RecordFragment" :
                 fragmentMode = "RecordFragment";
+                stopAudio();
                 sttList = (ArrayList<String>) copysttList.clone();
                 fragmentTransaction.replace(R.id.frameView, recordFragment);
                 fragmentTransaction.commit();
@@ -366,11 +367,13 @@ public class SubActivity extends AppCompatActivity {
                 break;
             case "BookMarkFragment" :
                 fragmentMode = "BookMarkFragment";
+                stopAudio();
                 fragmentTransaction.replace(R.id.frameView, bookMarkFragment);
                 fragmentTransaction.commit();
                 break;
             case "SummaryFragment" :
                 fragmentMode = "SummaryFragment";
+                stopAudio();
                 fragmentTransaction.replace(R.id.frameView, summaryFragment);
                 fragmentTransaction.commit();
                 break;
@@ -379,11 +382,16 @@ public class SubActivity extends AppCompatActivity {
     }
 
     private void stopAudio(){
+        if(SubActivity.mediaPlayer == null){
+            return ;
+        }
         SubActivity.mediaPlayer.stop();
         SubActivity.mediaPlayer.reset();
         SubActivity.mediaPlayer.release();
 
         SubActivity.isPlaying = false;
+
+        mediaPlayer = null;
     }
 
     public void refreshFrag(String fragName){

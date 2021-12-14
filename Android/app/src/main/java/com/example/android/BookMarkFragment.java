@@ -93,16 +93,16 @@ public class BookMarkFragment extends Fragment {
                 SubActivity.mediaPlayer.seekTo((int)(time * 1000));
                 SubActivity.mediaPlayer.start();
             }
+
         });
-
-        SubActivity.mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @Override
-            public void onCompletion(MediaPlayer mp) {
-                stopAudio();
-            }
-        });
-
-
+        if(SubActivity.mediaPlayer != null) {
+            SubActivity.mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mp) {
+                    stopAudio();
+                }
+            });
+        }
 
         return view;
     }

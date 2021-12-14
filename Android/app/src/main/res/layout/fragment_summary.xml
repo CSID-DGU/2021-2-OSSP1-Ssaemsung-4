@@ -8,6 +8,7 @@
 
     <!-- TODO: Update blank fragment layout -->
     <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/summaryRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
@@ -21,10 +22,21 @@
             android:id="@+id/playerView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
+            android:orientation="horizontal"
+            android:weightSum="10">
+            <ImageButton
+                android:id="@+id/play_button"
+                android:layout_width="wrap_content"
+                android:background="@android:color/transparent"
+                android:layout_height="50dp"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                app:srcCompat="@drawable/ic_play"
+                tools:ignore="SpeakableTextPresentCheck" />
             <SeekBar
                 android:id="@+id/seekBar"
+                android:layout_weight="9"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"/>
 
@@ -34,22 +46,27 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
             <Button
+                android:id="@+id/startTime_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
                 android:text="시작시간"/>
             <TextView
+                android:id="@+id/startTime_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
                 android:text="00:00">
             </TextView>
             <Button
+                android:id="@+id/endTime_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
+                android:enabled="false"
                 android:text="종료시간"/>
             <TextView
+                android:id="@+id/endTime_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
@@ -57,9 +74,11 @@
             </TextView>
 
             <Button
+                android:id="@+id/startSummary_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
+                android:enabled="false"
                 android:text="요약시작">
 
             </Button>

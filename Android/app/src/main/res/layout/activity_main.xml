@@ -20,7 +20,7 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/audioRecyclerView"
         android:layout_width="match_parent"
-        android:layout_height="540dp"
+        android:layout_height="455dp"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
     <ImageButton

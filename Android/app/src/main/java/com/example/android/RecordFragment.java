@@ -52,31 +52,33 @@ public class RecordFragment extends Fragment {
                 if(SubActivity.isPlaying == true) {
                     stopAudio();
                     SubActivity.mediaPlayer = null;
-                    SubActivity.mediaPlayer = new MediaPlayer();
-                    File file = new File(SubActivity.uriName);
-                    try {
-                        SubActivity.mediaPlayer.setDataSource(file.getAbsolutePath());
-                        SubActivity.mediaPlayer.prepare();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
 
+                }
+                SubActivity.mediaPlayer = new MediaPlayer();
+                File file = new File(SubActivity.uriName);
+                try {
+                    SubActivity.mediaPlayer.setDataSource(file.getAbsolutePath());
+                    SubActivity.mediaPlayer.prepare();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
 
                 SubActivity.isPlaying = true;
-                Log.d("time", String.valueOf(time * 1000));
+                //Log.d("time", String.valueOf(time * 1000));
                 SubActivity.mediaPlayer.seekTo((int)(time * 1000));
                 SubActivity.mediaPlayer.start();
+
+                SubActivity.mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                    @Override
+                    public void onCompletion(MediaPlayer mp) {
+                        stopAudio();
+                    }
+                });
             }
         });
         Thread();
 
-        SubActivity.mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @Override
-            public void onCompletion(MediaPlayer mp) {
-                stopAudio();
-            }
-        });
+
 
         return view;
     }
@@ -89,14 +91,12 @@ public class RecordFragment extends Fragment {
                     if(SubActivity.isFinish || !SubActivity.fragmentMode.equals("RecordFragment")){
                         return ;
                     }
-                    Log.d("chag", "run");
                     if(SubActivity.isPlaying){
                         for(int i=0; i< sttAdapter.sttModels.size();i++){
                             if(SubActivity.isPlaying == true) {
                                 if ((int) (Double.parseDouble(sttAdapter.sttModels.get(i).split(" ")[0]) * 1000) <= SubActivity.mediaPlayer.getCurrentPosition() &&
                                         (int) (Double.parseDouble(sttAdapter.sttModels.get(i + 1).split(" ")[0]) * 1000) > SubActivity.mediaPlayer.getCurrentPosition()){
                                     //notifyItemChanged(i);
-                                    Log.d("cj","ere");
                                     int finalI = i;
                                     getActivity().runOnUiThread(new Runnable() {
                                         @Override
@@ -111,7 +111,7 @@ public class RecordFragment extends Fragment {
                         }
                         try {
                             Thread.sleep(500);
-                            Log.d("th", "sleep");
+                            //Log.d("th", "sleep");
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
@@ -133,7 +133,6 @@ public class RecordFragment extends Fragment {
     }
 
     public void refreshList(){
-        Log.d("he", String.valueOf(SubActivity.sttList.size()));
         sttAdapter.updateList(SubActivity.sttList);
     }
 
