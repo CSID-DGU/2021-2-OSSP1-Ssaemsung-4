@@ -80,6 +80,7 @@ public class RecordDialog {
             //recordDialog view 삭제
             @Override
             public void onClick(View view) {
+                MainActivity.isCancel = true;
                 cancelDialog();
             }
         });
@@ -88,10 +89,6 @@ public class RecordDialog {
     public void cancelDialog() {
         soundVisualizerView.clearVisualization();
         stopCountup();
-
-        Uri uriName = Uri.parse(MainActivity.audioFileName);
-        File file = new File(String.valueOf(uriName));
-        file.delete();
         destroyDialog();
     }
     public void destroyDialog() {

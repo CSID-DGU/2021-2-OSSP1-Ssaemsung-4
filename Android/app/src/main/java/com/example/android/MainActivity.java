@@ -58,6 +58,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class MainActivity extends AppCompatActivity {
 
     public static Context mContext;
+    public static boolean isCancel;
 
     ImageButton recordButton;
     //ImageButton recordStopButton;
@@ -125,6 +126,12 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 //레코드 화면 생성
+                if(isCancel == true){
+                    stopRecording();
+                    Uri uriName = Uri.parse(MainActivity.audioFileName);
+                    File file = new File(String.valueOf(uriName));
+                    file.delete();
+                }
                 RecordDialog recordDialog = new RecordDialog(MainActivity.this);
                 recordDialog.callFunction();
                 //버튼 누를시 녹음 시작
@@ -135,6 +142,7 @@ public class MainActivity extends AppCompatActivity {
                     Log.d(TAG,"start record");
                     isRecording = true;
 
+                    isCancel =  false;
                     startRecording();
 
                     recordDialog.startCountup();
@@ -569,6 +577,7 @@ public class MainActivity extends AppCompatActivity {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         audioFileName = recordPath + "/" + "Record_" + timeStamp + ".wav";
 
+        mediaRecorder = null;
         //Media Recorder 생성 및 설정
         mediaRecorder = new MediaRecorder();
         mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
@@ -581,12 +590,13 @@ public class MainActivity extends AppCompatActivity {
 
         try {
             mediaRecorder.prepare();
+            mediaRecorder.start();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         //녹음 시작
-        mediaRecorder.start();
+
         //soundVisualizerView.startVisualizing(false);
     }
 
@@ -602,14 +612,17 @@ public class MainActivity extends AppCompatActivity {
         //soundVisualizerView = null;r
 
         //파일이름을 uri로 변환해서 저장
-        audioUri = Uri.parse(audioFileName);
+        if(isCancel == false){
+            audioUri = Uri.parse(audioFileName);
 
-        audioList.add(audioUri);
+            audioList.add(audioUri);
 
-        //데이터 갱신
-        audioAdapter.notifyDataSetChanged();
+            //데이터 갱신
+            audioAdapter.notifyDataSetChanged();
 
-        PostSTTResult(audioFileName);
+            PostSTTResult(audioFileName);
+        }
+
     }
 
     //stt 서버와 연결후 db 에 msg로그 저장

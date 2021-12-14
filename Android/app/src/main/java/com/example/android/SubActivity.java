@@ -11,6 +11,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
@@ -326,6 +327,9 @@ public class SubActivity extends AppCompatActivity {
             speakerButton[i].setAllCaps(false);
             speakerButton[i].setText(speakerList.get(i));
             speakerButton[i].setLayoutParams(params);
+            speakerButton[i].setBackgroundColor(Color.rgb(12,77,162));
+            speakerButton[i].setTextColor(Color.rgb(250,250,250));
+
             int speakerNum = i;
             speakerButton[i].setOnClickListener(new View.OnClickListener() {
                 @Override
