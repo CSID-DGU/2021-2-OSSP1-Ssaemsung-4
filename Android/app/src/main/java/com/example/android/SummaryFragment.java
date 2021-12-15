@@ -244,13 +244,13 @@ public class SummaryFragment extends Fragment {
     }
 
     public static String setSummaryContext(String summary_name){
-        Cursor cursor = summaryDB.rawQuery("SELECT summary_context FROM summaryTable WHERE summary_name='" + summary_name+"'", null);
-        String summary_context = "";
+        Cursor cursor = summaryDB.rawQuery("SELECT summary_content FROM summaryTable WHERE summary_name='" + summary_name+"'", null);
+        String summary_content = "";
         while(cursor.moveToNext()){
-            summary_context = cursor.getString(0);
+            summary_content = cursor.getString(0);
         }
 
-        return summary_context;
+        return summary_content;
     }
 
     private void playAudio(){
@@ -410,19 +410,23 @@ public class SummaryFragment extends Fragment {
         call.enqueue(new Callback<SummaryPostResult>() {
             @Override
             public void onResponse(Call<SummaryPostResult> call, Response<SummaryPostResult> response) {
-                Log.d("respppppppppppppppppppse", "ere");
+                Log.d("respppppppppppppppppse", "ere");
                 if(response.isSuccessful()) {
                     Log.d("server", "start");
                     SummaryPostResult result = response.body();
-                    String summary_content = result.getResult();
+                    // List의 첫 element만 가져옴
+                    String summary_content = result.getResult().get(0);
+                    String changed_summary_content = summary_content.replace("'","''");
+
 
                     String summary_name = startTime_text.getText() + " - " + endTime_text.getText();
 
-                    String sql = "INSERT INTO summaryTable('summary_name','summary_context') values('" + summary_name + "','" + summary_content + "');";
+                    String sql = "INSERT INTO summaryTable('summary_name','summary_content') values('" + summary_name + "','" + changed_summary_content + "');";
                     summaryDB.execSQL(sql);
                     Log.d("server", "success");
                 }else {
                     Log.d("fail", "fail");
+                    Log.d("fail", Integer.toString(response.code()));
                 }
             }
 

@@ -4,11 +4,13 @@ import androidx.annotation.NonNull;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.List;
+
 public class SummaryPostResult {
     @SerializedName("result")
-    private String result;
+    private List<String> result;
 
-    public String getResult(){ return result; }
+    public List<String> getResult(){ return result; }
 
 
 

@@ -22,6 +22,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -120,6 +121,15 @@ public class MainActivity extends AppCompatActivity {
 
     private void init(){
         recordButton = (ImageButton) findViewById(R.id.record_button);
+
+        // 코드 확인 필요
+        if (Build.VERSION.SDK_INT >= 30){
+            if (!Environment.isExternalStorageManager()){
+                Intent getpermission = new Intent();
+                getpermission.setAction(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
+                startActivity(getpermission);
+            }
+        }
 
         recordButton.setOnClickListener(new View.OnClickListener() {
             @Override
