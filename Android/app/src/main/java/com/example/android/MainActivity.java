@@ -203,6 +203,7 @@ public class MainActivity extends AppCompatActivity {
                         Log.d(TAG,"stop record");
                         isRecording = false;
                         stopRecording();
+
                         recordDialog.stopCountup();
                         recordDialog.clearCountTime();
                         recordDialog.destroyDialog();
@@ -215,9 +216,19 @@ public class MainActivity extends AppCompatActivity {
                 recordDialog.update_button.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        Log.d("update","updatehere");
 
                         recordDialog.cancelDialog();
-
+                        isCancel = true;
+                        stopRecording();
+                        Uri uriName = Uri.parse(MainActivity.audioFileName);
+                        Log.d("uriName", String.valueOf(uriName));
+                        File file = new File(String.valueOf(uriName));
+                        file.delete();
+//
+//                        recordDialog.stopCountup();
+//                        recordDialog.clearCountTime();
+//                        recordDialog.destroyDialog();
                         //avd -> setting 가서 permission manager 들어가서 storage 어플 허용해주면 됨
                         //String sdPath = "/storage/emulated/0/Download/";
                         File sdPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
@@ -696,9 +707,10 @@ public class MainActivity extends AppCompatActivity {
 
 
         Log.d("aa", "stop");
-//        AmrToWav(audioFileName);
+        //AmrToWav(audioFileName);
         //파일이름을 uri로 변환해서 저장
         if(isCancel == false){
+
             audioUri = Uri.parse(audioFileName);
 
             audioList.add(audioUri);
@@ -716,10 +728,20 @@ public class MainActivity extends AppCompatActivity {
         Runtime rt = Runtime.getRuntime();
         Process pc = null;
         try {
-            String ffmpegBin = getExternalFilesDir("/").getAbsolutePath() + "/ffmpeg/ffmpeg.exe";
-            String input     = fileName;
+            String ffmpegBin = getExternalFilesDir("/").getAbsolutePath() + "/ffmpeg.exe";
+            Log.d("path", ffmpegBin);
 
-            pc = rt.exec(ffmpegBin + " -i " + "input.amr" + " -ar 44100 " + "output.wav");
+            String name     = fileName.split(".amr")[0];
+            Log.d("aa", name);
+
+            pc = rt.exec("chmod 755 " + ffmpegBin + " -i " + name+ ".amr" + " -ar 44100 " +  name + ".wav");
+            audioUri = Uri.parse(name + ".wav");
+            audioList.add(audioUri);
+
+            //데이터 갱신
+            audioAdapter.notifyDataSetChanged();
+
+            Log.d("succ", String.valueOf(pc));
         } catch(IOException e) {
             e.printStackTrace();
         }
