@@ -92,7 +92,7 @@ public class SoundVisualizerView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        amplitudePaint.setColor(getContext().getColor(R.color.purple_500));
+        amplitudePaint.setColor(getContext().getColor(R.color.navy));
         amplitudePaint.setStrokeWidth(LINE_WIDTH);
         amplitudePaint.setStrokeCap(Paint.Cap.ROUND);
 

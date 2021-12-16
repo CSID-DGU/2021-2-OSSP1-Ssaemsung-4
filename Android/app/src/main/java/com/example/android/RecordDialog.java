@@ -80,6 +80,22 @@ public class RecordDialog {
             //recordDialog view 삭제
             @Override
             public void onClick(View view) {
+                MainActivity.isCancel = true;
+                MainActivity.mediaRecorder.stop();
+                MainActivity.mediaRecorder.reset();
+                MainActivity.mediaRecorder.release();
+                MainActivity.mediaRecorder = null;
+
+                Uri uriName = Uri.parse(MainActivity.audioFileName);
+                File file = new File(String.valueOf(uriName));
+                file.delete();
+
+                soundVisualizerView.stopVisualizing();
+                soundVisualizerView.clearVisualization();
+                //soundVisualizerView = null;r
+
+
+                Log.d("aa", "stop");
                 cancelDialog();
             }
         });
@@ -89,9 +105,9 @@ public class RecordDialog {
         soundVisualizerView.clearVisualization();
         stopCountup();
 
-        Uri uriName = Uri.parse(MainActivity.audioFileName);
-        File file = new File(String.valueOf(uriName));
-        file.delete();
+//        Uri uriName = Uri.parse(MainActivity.audioFileName);
+//        File file = new File(String.valueOf(uriName));
+//        file.delete();
         destroyDialog();
     }
     public void destroyDialog() {

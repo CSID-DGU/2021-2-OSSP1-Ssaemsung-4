@@ -1,5 +1,6 @@
 package com.example.android;
 
+import androidx.annotation.ColorInt;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -11,6 +12,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
@@ -299,6 +301,9 @@ public class SubActivity extends AppCompatActivity {
         record_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                record_button.setTextColor(Color.BLACK);
+                bookmark_button.setTextColor(Color.WHITE);
+                summary_button.setTextColor(Color.WHITE);
                 setFrag("RecordFragment");
             }
         });
@@ -306,6 +311,9 @@ public class SubActivity extends AppCompatActivity {
         bookmark_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                record_button.setTextColor(Color.WHITE);
+                bookmark_button.setTextColor(Color.BLACK);
+                summary_button.setTextColor(Color.WHITE);
                 setFrag("BookMarkFragment");
             }
         });
@@ -313,6 +321,9 @@ public class SubActivity extends AppCompatActivity {
         summary_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                record_button.setTextColor(Color.WHITE);
+                bookmark_button.setTextColor(Color.WHITE);
+                summary_button.setTextColor(Color.BLACK);
                 setFrag("SummaryFragment");
             }
         });
@@ -326,6 +337,8 @@ public class SubActivity extends AppCompatActivity {
             speakerButton[i].setAllCaps(false);
             speakerButton[i].setText(speakerList.get(i));
             speakerButton[i].setLayoutParams(params);
+            speakerButton[i].setBackgroundColor(Color.rgb(12,77,162));
+            speakerButton[i].setTextColor(Color.rgb(250,250,250));
             int speakerNum = i;
             speakerButton[i].setOnClickListener(new View.OnClickListener() {
                 @Override

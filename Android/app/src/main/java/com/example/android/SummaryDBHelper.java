@@ -25,6 +25,7 @@ public class SummaryDBHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         String sql = "CREATE TABLE if not exists summaryTable ("
                 + "_id integer primary key autoincrement,"
+                + "record_name text,"
                 + "summary_name text,"
                 + "summary_content text);";
 

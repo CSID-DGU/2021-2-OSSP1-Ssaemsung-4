@@ -198,18 +198,7 @@ public class SummaryFragment extends Fragment {
                 } else {
                     try {
                         PostSummaryResult(startTime, endTime);
-                        summaryList.clear();
 
-                        Cursor cursor = summaryDB.rawQuery("SELECT summary_name FROM summaryTable", null);
-
-                        while(cursor.moveToNext()){
-                            String summary_name = cursor.getString(0);
-                            //Log.d("msg", msg_log);
-                            summaryList.add(summary_name);
-                        }
-
-                        summaryAdapter.notifyDataSetChanged();
-                        Log.d("server end ", "eneneenen");
 
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -223,7 +212,7 @@ public class SummaryFragment extends Fragment {
         summaryRecyclerView = (RecyclerView) view.findViewById(R.id.summaryRecyclerView);
 
         summaryList = new ArrayList<String>();
-        Cursor cursor = summaryDB.rawQuery("SELECT summary_name FROM summaryTable", null);
+        Cursor cursor = summaryDB.rawQuery("SELECT summary_name FROM summaryTable WHERE record_name='" + SubActivity.uriName +"'", null);
 
         while(cursor.moveToNext()){
             String summary_name = cursor.getString(0);
@@ -244,13 +233,13 @@ public class SummaryFragment extends Fragment {
     }
 
     public static String setSummaryContext(String summary_name){
-        Cursor cursor = summaryDB.rawQuery("SELECT summary_context FROM summaryTable WHERE summary_name='" + summary_name+"'", null);
-        String summary_context = "";
+        Cursor cursor = summaryDB.rawQuery("SELECT summary_content FROM summaryTable WHERE record_name='" + SubActivity.uriName+"'", null);
+        String summary_content = "";
         while(cursor.moveToNext()){
-            summary_context = cursor.getString(0);
+            summary_content = cursor.getString(0);
         }
 
-        return summary_context;
+        return summary_content;
     }
 
     private void playAudio(){
@@ -410,16 +399,27 @@ public class SummaryFragment extends Fragment {
         call.enqueue(new Callback<SummaryPostResult>() {
             @Override
             public void onResponse(Call<SummaryPostResult> call, Response<SummaryPostResult> response) {
-                Log.d("respppppppppppppppppppse", "ere");
+                Log.d("ppppppppppse", "ere");
                 if(response.isSuccessful()) {
                     Log.d("server", "start");
                     SummaryPostResult result = response.body();
-                    String summary_content = result.getResult();
+                    String summary_content = result.getResult()[0].replace("'","");
 
                     String summary_name = startTime_text.getText() + " - " + endTime_text.getText();
 
-                    String sql = "INSERT INTO summaryTable('summary_name','summary_context') values('" + summary_name + "','" + summary_content + "');";
+                    String sql = "INSERT INTO summaryTable('record_name','summary_name','summary_content') values('" + SubActivity.uriName + "', '" + summary_name + "', '" + summary_content + "');";
                     summaryDB.execSQL(sql);
+                    summaryList.clear();
+
+                    Cursor cursor = summaryDB.rawQuery("SELECT summary_name FROM summaryTable WHERE record_name='" + SubActivity.uriName + "'", null);
+
+                    while(cursor.moveToNext()){
+                        String temp_summary_name = cursor.getString(0);
+                        //Log.d("msg", msg_log);
+                        summaryList.add(temp_summary_name);
+                    }
+
+                    summaryAdapter.notifyDataSetChanged();
                     Log.d("server", "success");
                 }else {
                     Log.d("fail", "fail");

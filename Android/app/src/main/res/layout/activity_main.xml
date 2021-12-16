@@ -26,11 +26,12 @@
     <ImageButton
         android:id="@+id/record_button"
         android:layout_width="wrap_content"
-        android:background="@android:color/transparent"
         android:layout_height="50dp"
         android:layout_gravity="center"
         android:layout_weight="1"
         android:adjustViewBounds="true"
-        app:srcCompat="@drawable/ic_add_circle"
-        tools:ignore="SpeakableTextPresentCheck" />
+        android:background="@android:color/transparent"
+        android:src="@drawable/ic_add_circle"
+        android:tint="@color/navy"
+        tools:ignore="UseAppTint,SpeakableTextPresentCheck" />
 </LinearLayout>

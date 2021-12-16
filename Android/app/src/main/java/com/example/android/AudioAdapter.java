@@ -65,7 +65,7 @@ public class AudioAdapter extends RecyclerView.Adapter {
     }
 
     public interface OnReplayClickListener {
-        void onReplayClick(View view, int position);
+        void onReplayClick(View view, int position, SeekBar seekBar, TextView currenttimeText);
     }
 
     public interface OnTrashClickListener {
@@ -214,7 +214,7 @@ public class AudioAdapter extends RecyclerView.Adapter {
                     int pos = getAdapterPosition();
                     if (pos != RecyclerView.NO_POSITION) {
                         if(replayClickListner != null) {
-                            replayClickListner.onReplayClick(v, pos);
+                            replayClickListner.onReplayClick(v, pos, seekBar, currenttimeText);
                         }
                     }
                 }

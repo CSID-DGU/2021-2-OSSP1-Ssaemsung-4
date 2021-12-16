@@ -6,9 +6,9 @@ import com.google.gson.annotations.SerializedName;
 
 public class SummaryPostResult {
     @SerializedName("result")
-    private String result;
+    private String[] result;
 
-    public String getResult(){ return result; }
+    public String[] getResult(){ return result; }
 
 
 
@@ -16,7 +16,7 @@ public class SummaryPostResult {
     @Override
     public String toString() {
         return "PostResult{" +
-                "result" + result +
+                "result" + result[0] +
                 "}";
     }
 }

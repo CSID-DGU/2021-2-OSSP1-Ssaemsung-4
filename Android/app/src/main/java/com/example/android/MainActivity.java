@@ -15,6 +15,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
+import android.media.AudioAttributes;
+import android.media.AudioRecord;
 import android.media.MediaParser;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
@@ -22,6 +24,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -58,6 +61,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class MainActivity extends AppCompatActivity {
 
     public static Context mContext;
+    public static boolean isCancel;
 
     ImageButton recordButton;
     //ImageButton recordStopButton;
@@ -118,13 +122,61 @@ public class MainActivity extends AppCompatActivity {
         init();
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+//        if(mediaRecorder != null) {
+//            isCancel = true;
+//            stopRecording();
+//        }
+
+    }
+
+    @Override
+    public void onBackPressed() {
+        Log.d("back", "backhere");
+        super.onBackPressed();
+        Log.d("back", "backhere");
+        if(mediaRecorder != null) {
+            Log.d("back", "backhere");
+            isCancel = true;
+            stopRecording();
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if(mediaRecorder != null) {
+            stopRecording();
+        }
+    }
+
     private void init(){
         recordButton = (ImageButton) findViewById(R.id.record_button);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            if(!Environment.isExternalStorageManager()){
+                Intent getPermission = new Intent();
+                getPermission.setAction(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
+                startActivity(getPermission);
+            }
+        }
 
         recordButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //레코드 화면 생성
+//                if(isCancel == true){
+//                    if(mediaRecorder != null){
+//                        stopRecording();
+//                    }
+//
+//                    Uri uriName = Uri.parse(MainActivity.audioFileName);
+//                    File file = new File(String.valueOf(uriName));
+//                    file.delete();
+//                    isCancel = false;
+//                }
                 RecordDialog recordDialog = new RecordDialog(MainActivity.this);
                 recordDialog.callFunction();
                 //버튼 누를시 녹음 시작
@@ -135,6 +187,7 @@ public class MainActivity extends AppCompatActivity {
                     Log.d(TAG,"start record");
                     isRecording = true;
 
+                    isCancel = false;
                     startRecording();
 
                     recordDialog.startCountup();
@@ -276,6 +329,7 @@ public class MainActivity extends AppCompatActivity {
                     } else {
                         //다른 음성 파일을 클릭했을 경우
                         //기존의 재생중인 파일 중지
+
                         stopAudio(currenttimeText);
 
                         //새로 파일 재생하기
@@ -285,10 +339,11 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     //전에 플레이어 정지시켜놓고 다른 플레이어 시작시
                     if(preSeekBar != null && preSeekBar != curSeekBar){
-                        //Log.d(TAG,"preseekbar");
+                        Log.d(TAG,"not sameee");
                         preSeekBar.setProgress(0);
                         stopAudio(currenttimeText);
                     }
+                    Log.d("here","aaaaaaaaaaaaaaa");
                     playIcon = (ImageButton) view;
                     playAudio(file, currenttimeText);
                 }
@@ -319,6 +374,7 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 if(tempMediaPlayer != mediaPlayer) {
+                    Log.d("temp", "temp");
                     mediaPlayer = tempMediaPlayer;
                 }
 
@@ -349,9 +405,10 @@ public class MainActivity extends AppCompatActivity {
 
         audioAdapter.setOnReplayClickListener(new AudioAdapter.OnReplayClickListener() {
             @Override
-            public void onReplayClick(View view, int position) {
-//                stopAudio();
-//                playAudio();
+            public void onReplayClick(View view, int position, SeekBar seekBar, TextView currenttimeText) {
+                stopAudio(null);
+                seekBar.setProgress(0);
+                currenttimeText.setText("00:00");
 
             }
         });
@@ -460,7 +517,8 @@ public class MainActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
                     if(mediaPlayer == null) {
-                        break;
+                        //break;
+                        return;
                     }
                     curSeekBar.setProgress(mediaPlayer.getCurrentPosition());
                     runOnUiThread(new Runnable(){
@@ -478,15 +536,46 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void playAudio(File file, TextView currenttimeText) {
+        Log.d("here", "play");
         playIcon.setImageResource(R.drawable.ic_pause);
         //일시정지 후 시작하는 경우
         if ( mediaPlayer != null) {
             Log.d(TAG, "nullxxxx");
-            //int media_position = mediaPlayer.getCurrentPosition();
-            int media_position = curSeekBar.getProgress();
+            Log.d(TAG, String.valueOf(mediaPlayer));
 
-            mediaPlayer.seekTo(media_position);
-            mediaPlayer.start();
+            mediaPlayer.stop();
+            mediaPlayer.reset();
+            mediaPlayer.release();
+            mediaPlayer = null;
+            mediaPlayer= new MediaPlayer();
+            Log.d(TAG,"new play audio");
+
+            try {
+                Log.d(TAG, String.valueOf(file));
+                mediaPlayer.setDataSource(file.getAbsolutePath());
+                mediaPlayer.prepare();
+                int media_position = curSeekBar.getProgress();
+                Log.d("aa", String.valueOf(media_position));
+
+
+                mediaPlayer.seekTo(media_position);
+                Log.d("aa", "statta");
+                Log.d("aa", "kkkkkkkkkkkk");
+                mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                    @Override
+                    public void onPrepared(MediaPlayer mp) {
+                        mediaPlayer.start();
+                    }
+                });
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+
+
+            //int media_position = mediaPlayer.getCurrentPosition();
+
         }
         // 아예 처음 시작하는 부분
         else {
@@ -510,6 +599,7 @@ public class MainActivity extends AppCompatActivity {
         mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mp) {
+                Log.d("aaa", "completion");
                 stopAudio(currenttimeText);
             }
         });
@@ -567,8 +657,9 @@ public class MainActivity extends AppCompatActivity {
         //파일의 외부 경로 확인
         String recordPath = getExternalFilesDir("/").getAbsolutePath();
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        audioFileName = recordPath + "/" + "Record_" + timeStamp + ".wav";
+        audioFileName = recordPath + "/" + "Record_" + timeStamp + ".amr";
 
+        mediaRecorder = null;
         //Media Recorder 생성 및 설정
         mediaRecorder = new MediaRecorder();
         mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
@@ -579,14 +670,16 @@ public class MainActivity extends AppCompatActivity {
         mediaRecorder.setAudioSamplingRate(44100);
         mediaRecorder.setAudioEncodingBitRate(192000);
 
+        Log.d("aa", "aa");
         try {
             mediaRecorder.prepare();
+            mediaRecorder.start();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         //녹음 시작
-        mediaRecorder.start();
+
         //soundVisualizerView.startVisualizing(false);
     }
 
@@ -601,15 +694,35 @@ public class MainActivity extends AppCompatActivity {
         soundVisualizerView.clearVisualization();
         //soundVisualizerView = null;r
 
+
+        Log.d("aa", "stop");
+//        AmrToWav(audioFileName);
         //파일이름을 uri로 변환해서 저장
-        audioUri = Uri.parse(audioFileName);
+        if(isCancel == false){
+            audioUri = Uri.parse(audioFileName);
 
-        audioList.add(audioUri);
+            audioList.add(audioUri);
 
-        //데이터 갱신
-        audioAdapter.notifyDataSetChanged();
+            //데이터 갱신
+            audioAdapter.notifyDataSetChanged();
 
-        PostSTTResult(audioFileName);
+            PostSTTResult(audioFileName);
+        }
+
+    }
+
+    private void AmrToWav(String fileName){
+
+        Runtime rt = Runtime.getRuntime();
+        Process pc = null;
+        try {
+            String ffmpegBin = getExternalFilesDir("/").getAbsolutePath() + "/ffmpeg/ffmpeg.exe";
+            String input     = fileName;
+
+            pc = rt.exec(ffmpegBin + " -i " + "input.amr" + " -ar 44100 " + "output.wav");
+        } catch(IOException e) {
+            e.printStackTrace();
+        }
     }
 
     //stt 서버와 연결후 db 에 msg로그 저장
@@ -630,6 +743,8 @@ public class MainActivity extends AppCompatActivity {
         String path = audioFileName;
 
         File file = new File(path);
+
+
         RequestBody fileBody = RequestBody.create(MediaType.parse("audio/*"), file);
 
         //서버에서 받는 키값,파일 이름 string, request body 객체
