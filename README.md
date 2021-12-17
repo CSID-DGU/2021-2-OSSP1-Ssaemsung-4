@@ -39,16 +39,65 @@
 
 
 ## 프로젝트 구조도 및 기능
-사용자는 어플에서 다음 기능을 사용할 수 있습니다.
+
+**프로젝트 구조도**
+
+<img width="80%" src="https://user-images.githubusercontent.com/73880543/146599584-d1766579-2c7a-4f14-bf59-277a649aa58b.png"/>
+
+<br><br>
 
 **Speech-to-text & 화자구분**
 
-![image](https://user-images.githubusercontent.com/58474921/146342816-94328ef5-b4b0-42e3-b9ae-463a4f1c43b4.png)
-
-![image](https://user-images.githubusercontent.com/58474921/146342418-2232041d-7f89-4605-8e51-a456be777757.png)
+<img width="80%" src="https://user-images.githubusercontent.com/73880543/146599862-fc8e3cfb-2094-4cde-bfed-88ad3dede41f.png"/>
 
 
-**Speech-to-text & 화자구분**
 
-![image](https://user-images.githubusercontent.com/58474921/146342906-8e66a430-e056-4150-b52e-2e35eab104a7.png)
+![Stt 프로세스](https://user-images.githubusercontent.com/73880543/146600257-b40b2030-f53e-4c4f-922d-4092fce5a69c.png)
+1. wav 파일 POST 요청
+2. Google Cloud Storage에 파일 업로드
+3. Speech API 호출하여 STT&화자구분 진행 후 JSON 형식으로 결과 출력
+4. 업로드된 파일 삭제
+
+<br>
+**어플로 전송되는 JSON contents**
+
+<img width="80%" src="https://user-images.githubusercontent.com/73880543/146600688-7637835b-0a32-44fb-91e2-56f949962603.png"/>
+
+<br>
+
+
+
+
+
+**Text Summarization**
+
+<img width="80%" src="https://user-images.githubusercontent.com/73880543/146600153-0c7f0d27-2649-4ba8-baa9-40b4c8d91764.png"/>
+<br>
+
+## APP
+
+
+**메인 화면**
+
+<img width="250" src="https://user-images.githubusercontent.com/73880543/146601321-174f310a-0bb7-4c86-8551-73fa942ccac7.png"/> <img width="250" src="https://user-images.githubusercontent.com/73880543/146601324-d7020e81-58ef-4475-b454-1eabbce07bb4.png"/>
+
+**실제 구동 캡쳐**
+
+녹음기능<br>
+
+<img width="250" src="https://user-images.githubusercontent.com/73880543/146601518-dc073928-2869-4df0-9aa8-3fa89fcd4647.png"/>
+
+녹음파일 불러오기<br>
+
+<img width="250" src="https://user-images.githubusercontent.com/73880543/146601516-264619c6-7182-41e0-a509-42118cffd0f7.png"/>
+
+
+녹음본 텍스트화<br>
+<img width="250" src="https://user-images.githubusercontent.com/73880543/146601522-371b8aa6-7c40-4438-8c2e-5ace80f282cd.png"/>
+<img width="250" src="https://user-images.githubusercontent.com/73880543/146601512-eb832999-2d13-4dc2-83f0-42824e7534ad.png"/>
+<img width="250" src="https://user-images.githubusercontent.com/73880543/146601513-107b1b62-7bd0-4605-8290-64e76ba6acab.png"/>
+
+
+텍스트 요약 <br>
+<img width="250" src="https://user-images.githubusercontent.com/73880543/146601519-03fa556f-20dd-4268-acbd-ce3273e98965.png"/>
 
