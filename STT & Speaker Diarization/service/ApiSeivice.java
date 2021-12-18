@@ -1,5 +1,6 @@
 package com.stt.project.service;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -39,6 +40,12 @@ import com.google.cloud.storage.Storage.BlobTargetOption;
 import com.google.cloud.storage.Storage.PredefinedAcl;
 import com.google.cloud.storage.StorageOptions;
 import com.google.protobuf.ByteString;
+
+import net.bramp.ffmpeg.FFmpeg;
+import net.bramp.ffmpeg.FFmpegExecutor;
+import net.bramp.ffmpeg.FFprobe;
+import net.bramp.ffmpeg.builder.FFmpegBuilder;
+
 
 /**
  * ApiService
@@ -121,6 +128,17 @@ public class ApiSeivice {
 	 * return resultMap; }
 	 */
 	
+	public void AmrToWav(String fileName) {
+		Runtime rt = Runtime.getRuntime();
+		Process pc = null;
+		try {
+			String ffmpegBin = "src/main/resources/bin/ffmpeg.exe";
+			String input = fileName;
+			pc = rt.exec(ffmpegBin+"-i "+ "input.amr" + " -ar 44100 "+"output.wav");
+		}catch(IOException e) {
+			e.printStackTrace();
+		}
+	}  
 	// GCS File Upload
 	public String uploadToGcs(MultipartFile file) throws Exception  {
 		
@@ -144,6 +162,11 @@ public class ApiSeivice {
 				BlobTargetOption.predefinedAcl(Storage.PredefinedAcl.PUBLIC_READ) // Set file permission
 			);
 			
+			
+			if(file.getOriginalFilename().contains(".amr")) {
+				AmrToWav(file.getOriginalFilename());
+			}
+			
 			filePath = "gs://stotbk/uploads/" + file.getOriginalFilename(); // 업로드된 파일 url 리턴 
 			logger.debug(" @@ File Upload End ==> " + filePath);
 			
@@ -153,6 +176,7 @@ public class ApiSeivice {
 		
 		return filePath;
 	}
+	
 	
 	// 음성파일 -> 텍스트로 변환 
 	public Map<String, Object> transcribeDiarization(String filePath) throws Exception {
@@ -176,7 +200,7 @@ public class ApiSeivice {
 			SpeakerDiarizationConfig speakerDiarizationConfig = SpeakerDiarizationConfig.newBuilder()
 																.setEnableSpeakerDiarization(true)
 																.setMinSpeakerCount(2) // 최소 인원수
-																.setMaxSpeakerCount(2) // 최대 인원수
+																.setMaxSpeakerCount(10) // 최대 인원수
 																.build();
 
 			// Configure request to enable Speaker diarization
@@ -226,6 +250,15 @@ public class ApiSeivice {
 					speakerWords.append(wordInfo.getWord());
 					textWords.append(" ");
 					textWords.append(wordInfo.getWord());
+					// 마지막 화자가 말하는 내용은 바로 입력하도록 처리
+					if(i==alternative.getWordsCount()-1) {
+						// 전체 메시지 리스트에 추가 
+						msgLog.add(speakerWords.toString());
+						// 스피커 번호 리스트에 추가 
+						speakerNo.add(String.valueOf(currentSpeakerTag));
+						// 대화내용 리스트에 추가 
+						text.add(textWords.toString());
+					}
 				} else {
 					// 전체 메시지 리스트에 추가 
 					msgLog.add(speakerWords.toString());
@@ -233,22 +266,25 @@ public class ApiSeivice {
 					speakerNo.add(String.valueOf(currentSpeakerTag));
 					// 대화내용 리스트에 추가 
 					text.add(textWords.toString());
-					
 					// 다음 대화내용을 받기 위해 초기화 
 					speakerWords.setLength(0);
 					textWords.setLength(0);
 					
 					// 다음 대화내용 기록 시작
 					speakerWords.append(String.format("%d.%d Sec - Speaker %d: %s",
-							wordInfo.getStartTime().getSeconds(), wordInfo.getStartTime().getNanos() / 100000000,
-							wordInfo.getSpeakerTag(), wordInfo.getWord()));
+								wordInfo.getStartTime().getSeconds(), wordInfo.getStartTime()
+								.getNanos() / 100000000,
+								wordInfo.getSpeakerTag(), wordInfo.getWord()));
 					textWords = new StringBuilder(wordInfo.getWord());
 					
 					// 다음 스피커 번호 세팅 
 					currentSpeakerTag = wordInfo.getSpeakerTag();
 					
 					// 대화시작시간 저장 
-					startTime.add(wordInfo.getStartTime().getSeconds() + "." + wordInfo.getStartTime().getNanos() / 100000000);
+					startTime.add(wordInfo.getStartTime().getSeconds() + "." + wordInfo.getStartTime()
+								.getNanos() / 100000000);
+						
+						
 				}
 			}
 
